@@ -143,16 +143,11 @@
                 <span class="hidden md:inline text-slate-500">|</span>
                 <span class="hidden md:inline text-slate-200"><i class="fa-solid fa-location-dot text-red-400 mr-1.5"></i>ஞாயிறு கிராமம், சென்னை-600067</span>
             </div>
-            
-                </a>
-                
-                </a>
-            </div>
         </div>
     </div>
 
     <!-- Navigation Bar -->
-    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur shadow-md border-b border-slate-100">
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur shadow-md border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- Shop Brand & Logo -->
@@ -179,10 +174,25 @@
                     <a href="#sheets-data" class="hover:text-brand-blue transition text-brand-blue">ஆவண பட்டியல் (Live)</a>
                     <a href="links.html" class="hover:text-brand-blue transition text-amber-600 font-bold">💰 டைரக்ட் லிங்க்ஸ் (Live)</a>
                     <a href="#whyus" class="hover:text-brand-blue transition">ஏன் நாங்கள்?</a>
-                    <a href= class="hover:text-brand-blue transition">ADDON</a>
-                </div>
+                    
+                    <!-- ADDON Dropdown Menu (Desktop) -->
+                    <div class="relative group py-4" id="desktopAddonWrapper">
+                        <button id="addonDropdownBtn" type="button" class="hover:text-brand-blue transition flex items-center gap-1.5 font-bold focus:outline-none cursor-pointer">
+                            <span>ADDON</span>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-hover:rotate-180" id="addonChevron"></i>
+                        </button>
 
-                
+                        <!-- Invisible padding bridge prevents mouse leave glitch -->
+                        <div id="addonMenu" class="absolute right-0 top-full w-52 pt-1 hidden group-hover:block transition-all duration-200 z-50">
+                            <div class="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden py-1">
+                                <a href="proforma.html" class="block px-4 py-3 text-sm font-bold text-slate-800 hover:bg-blue-50 hover:text-brand-blue transition flex items-center gap-2.5">
+                                    <i class="fa-solid fa-file-invoice text-amber-500 text-base"></i>
+                                    <span>PROFORMA MAKER</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
@@ -202,9 +212,19 @@
             <a href="#sheets-data" class="mobile-nav-link block px-3 py-2 rounded-lg font-bold text-brand-blue hover:bg-blue-50">ஆவண பட்டியல் (Live Data)</a>
             <a href="links.html" class="mobile-nav-link block px-3 py-2 rounded-lg font-bold text-amber-600 hover:bg-blue-50">💰டைரக்ட் லிங்க்ஸ் (Live)</a>
             <a href="#whyus" class="mobile-nav-link block px-3 py-2 rounded-lg font-medium text-slate-800 hover:bg-blue-50">ஏன் நாங்கள்?</a>
-            <a href= class="mobile-nav-link block px-3 py-2 rounded-lg font-medium text-slate-800 hover:bg-blue-50">ADDON</a>
-            <div class="pt-2 flex flex-col gap-2">
-             
+            
+            <!-- ADDON Dropdown Menu (Mobile) -->
+            <div>
+                <button id="mobileAddonBtn" type="button" class="w-full flex items-center justify-between px-3 py-2 rounded-lg font-bold text-slate-800 hover:bg-blue-50 focus:outline-none cursor-pointer">
+                    <span>ADDON</span>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200" id="mobileAddonIcon"></i>
+                </button>
+                <div id="mobileAddonMenu" class="hidden pl-4 pr-2 py-1 space-y-1">
+                    <a href="proforma.html" class="mobile-nav-link block px-3 py-2 rounded-lg text-sm font-bold text-brand-blue hover:bg-blue-50 flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice text-amber-500"></i>
+                        <span>PROFORMA MAKER</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -243,21 +263,14 @@
                 <div class="lg:col-span-5">
                     <div class="glass-card text-slate-900 p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/20">
                         <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
-                            
-                        <div class="marquee-box">
-                            <marquee behavior="scroll" direction="left" scrollamount="6">
-                                அனைவருக்கும் வணக்கம் 🙏 | WELCOME TO OUR WEBSITE 🎉
-                            </marquee>
+                            <div class="marquee-box w-full">
+                                <marquee behavior="scroll" direction="left" scrollamount="6">
+                                    அனைவருக்கும் வணக்கம் 🙏 | WELCOME TO OUR WEBSITE 🎉
+                                </marquee>
 
-                            <div class="open-now-box">
-                                <span class="status-dot"></span>
-                                <span>OPEN NOW</span>
-                            </div>
-                        </div>
-                         </h1>
-                            </div>
-
-                        
+                                <div class="open-now-box">
+                                    <span class="status-dot"></span>
+                                    <span>OPEN NOW</span>
                                 </div>
                             </div>
                         </div>
@@ -268,412 +281,141 @@
         </div>
     </section>
 
-    <!-- 1ST POSITION: Standard Services Overview -->
- <!-- SERVICES SECTION -->
-<section id="services" class="py-14 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8">
-
-    <div class="max-w-7xl mx-auto">
-
-        <!-- Section Header -->
-        <div class="text-center mb-10">
-            
-
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-3">
-                எங்களின் அனைத்து சேவைகள்
-            </h2>
-
-                    </div>
-
-
-        <!-- Services Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-5">
-
-
-            <!-- Aadhaar -->
-            <div class="interactive-card group bg-gradient-to-br from-blue-500 to-indigo-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🪪
-                </div>
-
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    ஆதார்(முகவரி/தொலைபேசி )
-                </h3>
+    <!-- SERVICES SECTION -->
+    <section id="services" class="py-14 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-3">
+                    எங்களின் அனைத்து சேவைகள்
+                </h2>
             </div>
 
-
-            <!-- PAN -->
-            <div class="interactive-card group bg-gradient-to-br from-emerald-500 to-teal-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    💳
+            <!-- Services Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-5">
+                <div class="interactive-card group bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🪪</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">ஆதார்(முகவரி/தொலைபேசி )</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    பான் கார்டு
-                </h3>
-            </div>
-
-
-            <!-- Ration -->
-            <div class="interactive-card group bg-gradient-to-br from-orange-500 to-red-500
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🛒
+                <div class="interactive-card group bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">💳</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">பான் கார்டு</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    ரேஷன் அட்டை
-                </h3>
-            </div>
-
-
-            <!-- Voter -->
-            <div class="interactive-card group bg-gradient-to-br from-purple-500 to-pink-500
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🗳️
+                <div class="interactive-card group bg-gradient-to-br from-orange-500 to-red-500 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🛒</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">ரேஷன் அட்டை</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    வாக்காளர் அட்டை
-                </h3>
-            </div>
-
-
-            <!-- Driving Licence -->
-            <div class="interactive-card group bg-gradient-to-br from-cyan-500 to-blue-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🚗
+                <div class="interactive-card group bg-gradient-to-br from-purple-500 to-pink-500 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🗳️</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">வாக்காளர் அட்டை</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    ஓட்டுநர் உரிமம்
-                </h3>
-            </div>
-
-
-            <!-- Passport -->
-            <div class="interactive-card group bg-gradient-to-br from-violet-500 to-purple-700
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🌍
+                <div class="interactive-card group bg-gradient-to-br from-cyan-500 to-blue-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🚗</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">ஓட்டுநர் உரிமம்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    பாஸ்போர்ட்
-                </h3>
-            </div>
-
-
-            <!-- e-Sevai -->
-            <div class="interactive-card group bg-gradient-to-br from-pink-500 to-rose-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    📄
+                <div class="interactive-card group bg-gradient-to-br from-violet-500 to-purple-700 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🌍</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">பாஸ்போர்ட்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    சான்றிதழ்கள் (e-Sevai)
-                </h3>
-            </div>
-
-
-            <!-- Police Verification -->
-            <div class="interactive-card group bg-gradient-to-br from-slate-600 to-slate-800
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    👮
+                <div class="interactive-card group bg-gradient-to-br from-pink-500 to-rose-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">📄</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">சான்றிதழ்கள் (e-Sevai)</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    போலீஸ் வெரிஃபிகேஷன்
-                </h3>
-            </div>
-
-
-            <!-- Vehicle Insurance -->
-            <div class="interactive-card group bg-gradient-to-br from-green-500 to-lime-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🛡️
+                <div class="interactive-card group bg-gradient-to-br from-slate-600 to-slate-800 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">👮</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">போலீஸ் வெரிஃபிகேஷன்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    வாகன காப்பீடு
-                </h3>
-            </div>
-
-
-            <!-- Electricity -->
-            <div class="interactive-card group bg-gradient-to-br from-yellow-400 to-orange-500
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    ⚡
+                <div class="interactive-card group bg-gradient-to-br from-green-500 to-lime-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🛡️</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">வாகன காப்பீடு</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    மின் இணைப்பு
-                </h3>
-            </div>
-
-
-            <!-- GST -->
-            <div class="interactive-card group bg-gradient-to-br from-indigo-500 to-blue-700
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    📊
+                <div class="interactive-card group bg-gradient-to-br from-yellow-400 to-orange-500 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">⚡</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">மின் இணைப்பு</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    GST ரெஜிஸ்ட்ரேஷன்
-                </h3>
-            </div>
-
-
-            <!-- TDS -->
-            <div class="interactive-card group bg-gradient-to-br from-red-500 to-orange-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    💰
+                <div class="interactive-card group bg-gradient-to-br from-indigo-500 to-blue-700 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">📊</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">GST ரெஜிஸ்ட்ரேஷன்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    TDS பைலிங்
-                </h3>
-            </div>
-
-
-            <!-- PF -->
-            <div class="interactive-card group bg-gradient-to-br from-teal-500 to-cyan-700
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🏦
+                <div class="interactive-card group bg-gradient-to-br from-red-500 to-orange-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">💰</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">TDS பைலிங்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    பிஎப் சேவை
-                </h3>
-            </div>
-
-
-                    <!-- Patta Chitta -->
-            <div class="interactive-card group bg-gradient-to-br from-amber-500 to-yellow-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🏡
+                <div class="interactive-card group bg-gradient-to-br from-teal-500 to-cyan-700 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🏦</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">பிஎப் சேவை</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    பட்டா சிட்டா FMB
-                </h3>
-            </div>
-
-
-            <!-- EC -->
-            <div class="interactive-card group bg-gradient-to-br from-fuchsia-500 to-purple-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    📑
+                <div class="interactive-card group bg-gradient-to-br from-amber-500 to-yellow-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🏡</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">பட்டா சிட்டா FMB</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    EC / QR EC
-                </h3>
-            </div>
-
-
-            <!-- Insurance -->
-            <div class="interactive-card group bg-gradient-to-br from-lime-500 to-green-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🛡️
+                <div class="interactive-card group bg-gradient-to-br from-fuchsia-500 to-purple-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">📑</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">EC / QR EC</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    காப்பீட்டு திட்டம்
-                </h3>
-            </div>
-
-
-            <!-- Bus Ticket -->
-            <div class="interactive-card group bg-gradient-to-br from-sky-500 to-cyan-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🚌
+                <div class="interactive-card group bg-gradient-to-br from-lime-500 to-green-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🛡️</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">காப்பீட்டு திட்டம்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    பஸ் டிக்கெட்
-                </h3>
-            </div>
-
-
-            <!-- Train Ticket -->
-            <div class="interactive-card group bg-gradient-to-br from-orange-500 to-red-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🚆
+                <div class="interactive-card group bg-gradient-to-br from-sky-500 to-cyan-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🚌</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">பஸ் டிக்கெட்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    ரயில் டிக்கெட்
-                </h3>
-            </div>
-
-
-            <!-- Flight Ticket -->
-            <div class="interactive-card group bg-gradient-to-br from-blue-600 to-cyan-500
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    ✈️
+                <div class="interactive-card group bg-gradient-to-br from-orange-500 to-red-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🚆</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">ரயில் டிக்கெட்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    விமான டிக்கெட்
-                </h3>
-            </div>
-
-
-            <!-- Patta Chitta -->
-            <div class="interactive-card group bg-gradient-to-br from-amber-500 to-yellow-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    🏡
+                <div class="interactive-card group bg-gradient-to-br from-blue-600 to-cyan-500 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">✈️</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">விமான டிக்கெட்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    MSME/Udyog ஆதார்
-                </h3>
-            </div>
-
-            <!-- Police Verification -->
-            <div class="interactive-card group bg-gradient-to-br from-slate-600 to-slate-800
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    👮
+                <div class="interactive-card group bg-gradient-to-br from-amber-500 to-yellow-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">🏡</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">MSME/Udyog ஆதார்</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    மொபைல் டிஸ் ரீசார்ஜ் 
-                </h3>
-            </div>
-
-
-            <!-- Passport Photo -->
-            <div class="interactive-card group bg-gradient-to-br from-purple-600 to-pink-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    📸
+                <div class="interactive-card group bg-gradient-to-br from-slate-600 to-slate-800 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">👮</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">மொபைல் டிஸ் ரீசார்ஜ் </h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    பாஸ்போர்ட் சைஸ் போட்டோ
-                </h3>
-            </div>
-
-            <!-- e-Sevai -->
-            <div class="interactive-card group bg-gradient-to-br from-pink-500 to-rose-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    📄
+                <div class="interactive-card group bg-gradient-to-br from-purple-600 to-pink-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">📸</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">பாஸ்போர்ட் சைஸ் போட்டோ</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                   TN வேலைவாய்ப்பு 
-                </h3>
-            </div>
-
-            <!-- PAN -->
-            <div class="interactive-card group bg-gradient-to-br from-emerald-500 to-teal-600
-                        text-white p-5 rounded-2xl shadow-lg cursor-pointer
-                        transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-                <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center
-                            bg-white/20 rounded-xl text-2xl">
-                    💳
+                <div class="interactive-card group bg-gradient-to-br from-pink-500 to-rose-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">📄</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">TN வேலைவாய்ப்பு</h3>
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-center leading-snug">
-                    TNPSC அரசு தேர்வுகள் 
-                </h3>
+                <div class="interactive-card group bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 rounded-2xl shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                    <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white/20 rounded-xl text-2xl">💳</div>
+                    <h3 class="text-base sm:text-lg font-bold text-center leading-snug">TNPSC அரசு தேர்வுகள்</h3>
+                </div>
             </div>
-
         </div>
-    </div>
-</section>
+    </section>
 
-    <!-- 2ND POSITION: Statistics Section -->
+    <!-- Statistics Section -->
     <section id="stats" class="py-12 bg-white border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-8">
@@ -749,7 +491,7 @@
                     <div class="text-xs font-bold text-slate-600 mt-1">மின் நுகர்வோர் சேவைகள்</div>
                 </div>
 
-                                <div class="interactive-card bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center cursor-pointer">
+                <div class="interactive-card bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center cursor-pointer">
                     <div class="w-10 h-10 mx-auto mb-2 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center text-lg font-bold">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
@@ -757,7 +499,7 @@
                     <div class="text-xs font-bold text-slate-600 mt-1">பாஸ்போர்ட் சேவைகள்</div>
                 </div>
 
-                                <div class="interactive-card bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center cursor-pointer">
+                <div class="interactive-card bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center cursor-pointer">
                     <div class="w-10 h-10 mx-auto mb-2 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center text-lg font-bold">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
@@ -768,7 +510,7 @@
         </div>
     </section>
 
-    <!-- 3RD POSITION: LIVE GOOGLE SHEET DATA SECTION -->
+    <!-- LIVE GOOGLE SHEET DATA SECTION -->
     <section id="sheets-data" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div class="text-center max-w-3xl mx-auto mb-10">
             <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-900 mt-3">சேவைகள் & தேவையான ஆவணங்கள்</h2>
@@ -808,28 +550,25 @@
         <div class="max-w-4xl mx-auto text-center space-y-6">
             <h2 class="text-3xl font-extrabold text-amber-400">VIJAY ONLINE SERVICES</h2>
             <p class="text-lg text-slate-200">காமராஜர் தெரு, ஞாயிறு கிராமம், சென்னை - 600067</p>
-                </section>
+        </div>
+    </section>
 
-   <!-- Footer -->
+    <!-- Footer -->
     <footer class="bg-navy-900 text-white py-8 mt-auto border-t border-navy-800">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs md:text-sm text-slate-400">
             <p>© 2026 VIJAY ONLINE SERVICES</p>
-      
-<div style="display: flex; justify-content: center; align-items: flex-start; gap: 24px; flex-wrap: wrap; width: 100%; margin-top: 16px;">
-  
-  <!-- VISITOR COUNT SHIELD -->
-  <a href="https://toolszu.com/tools/real-time-website-visitor-counter/" target="_blank" style="text-decoration: none; display: inline-flex; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.15); border: 1px solid #cbd5e1;">
-    <span style="background-color: #475569; color: #ffffff; font-family: Arial, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 6px 10px; display: flex; align-items: center; letter-spacing: 0.5px;">
-      Visitor Count
-    </span>
-    <span style="background-color: #ffffff; padding: 4px 8px; display: flex; align-items: center;">
-      <img src="https://toolszu.com/tools/real-time-website-visitor-counter/tracker.php?id=a05982ebb4a03b148e91a38d62c971640312a06c4a530a0894580fd912ecdb5d" alt="Web Visitor Counter" border="0" style="display: block; vertical-align: middle;">
-    </span>
-  </a>
-
- 
-
-</div>
+            <div style="display: flex; justify-content: center; align-items: flex-start; gap: 24px; flex-wrap: wrap; width: 100%; margin-top: 16px;">
+                <!-- VISITOR COUNT SHIELD -->
+                <a href="https://toolszu.com/tools/real-time-website-visitor-counter/" target="_blank" style="text-decoration: none; display: inline-flex; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.15); border: 1px solid #cbd5e1;">
+                    <span style="background-color: #475569; color: #ffffff; font-family: Arial, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 6px 10px; display: flex; align-items: center; letter-spacing: 0.5px;">
+                        Visitor Count
+                    </span>
+                    <span style="background-color: #ffffff; padding: 4px 8px; display: flex; align-items: center;">
+                        <img src="https://toolszu.com/tools/real-time-website-visitor-counter/tracker.php?id=a05982ebb4a03b148e91a38d62c971640312a06c4a530a0894580fd912ecdb5d" alt="Web Visitor Counter" border="0" style="display: block; vertical-align: middle;">
+                    </span>
+                </a>
+            </div>
+        </div>
     </footer>
 
     <!-- Fixed Floating Mobile Actions -->
@@ -843,129 +582,152 @@
     </div>
 
     <script>
-        // Mobile menu toggle
+        // Mobile Menu Toggle
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Fetch Google Sheet CSV Link provided by User
-const googleSheetCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTJIIoaOf1Dzbrenip2CUhUFTyBc6rp2mjcMXHqMtZa2QiuLMD7rXjoFc4Xx2cmzb3V8YaalnjWcD3u/pub?output=csv';
+        // Desktop ADDON Click & Hover Fallback
+        const addonBtn = document.getElementById('addonDropdownBtn');
+        const addonMenu = document.getElementById('addonMenu');
+        const addonChevron = document.getElementById('addonChevron');
+        const desktopAddonWrapper = document.getElementById('desktopAddonWrapper');
 
-function loadGoogleSheetData() {
-    Papa.parse(googleSheetCsvUrl, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
+        addonBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addonMenu.classList.toggle('hidden');
+            addonChevron.classList.toggle('rotate-180');
+        });
 
-        complete: function(results) {
-            const rows = results.data;
-            const grid = document.getElementById('sheetGrid');
-
-            if (!rows || rows.length <= 1) return;
-
-            grid.innerHTML = '';
-
-            // Start from Row 2 (index 1)
-            // Use only Columns A to N (index 0 to 13)
-            for (let i = 1; i < rows.length; i++) {
-
-                const row = rows[i].slice(0, 14);
-
-                // Column A = Service Name
-                const serviceName = row[0]
-                    ? row[0].trim()
-                    : `சேவை ${i}`;
-
-                // Columns B to N = Required Documents
-                let reqDocsList = [];
-
-                for (let j = 1; j < 14; j++) {
-                    if (row[j] && row[j].trim() !== '') {
-                        reqDocsList.push(row[j].trim());
-                    }
-                }
-
-                let docsHtml = '';
-
-                if (reqDocsList.length > 0) {
-                    docsHtml = `
-                        <ol class="list-decimal list-inside space-y-1 text-sm font-semibold text-slate-800 leading-relaxed">
-                    `;
-
-                    reqDocsList.forEach(doc => {
-                        docsHtml += `<li>${doc}</li>`;
-                    });
-
-                    docsHtml += `</ol>`;
-                } else {
-                    docsHtml = `
-                        <p class="text-sm font-semibold text-slate-800">
-                            விவரங்களுக்கு கடைக்கு தொடர்பு கொள்ளவும்
-                        </p>
-                    `;
-                }
-
-                const card = document.createElement('div');
-
-                card.className =
-                    "interactive-card bg-white p-6 rounded-2xl border border-slate-200 shadow-md hover:shadow-lg transition flex flex-col justify-between cursor-pointer";
-
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="w-8 h-8 rounded-lg bg-blue-100 text-brand-blue flex items-center justify-center font-bold text-sm">
-                                <i class="fa-solid fa-file-check"></i>
-                            </span>
-
-                            <h3 class="font-extrabold text-lg text-slate-900">
-                                ${serviceName}
-                            </h3>
-                        </div>
-
-                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                தேவையான ஆவணங்கள்:
-                            </p>
-
-                            ${docsHtml}
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-
-                        <a
-                            href="https://wa.me/918056202411?text=${encodeURIComponent(
-                                'வணக்கம், ' + serviceName + ' சேவை பற்றி கேட்க விரும்புகிறேன்.'
-                            )}"
-                            target="_blank"
-                            class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-                        >
-                            <i class="fa-brands fa-whatsapp text-sm"></i>
-                            தகவல் கேட்க
-                        </a>
-
-                        <a
-                            href="tel:8056202411"
-                            class="text-xs font-bold text-brand-blue hover:text-blue-800 flex items-center gap-1"
-                        >
-                            <i class="fa-solid fa-phone"></i>
-                            8056202411
-                        </a>
-
-                    </div>
-                `;
-
-                grid.appendChild(card);
+        // Close desktop dropdown if clicking outside
+        document.addEventListener('click', (e) => {
+            if (!desktopAddonWrapper.contains(e.target)) {
+                addonMenu.classList.add('hidden');
+                addonChevron.classList.remove('rotate-180');
             }
-        },
+        });
 
-        error: function(err) {
-            console.log('Sheet parse completed silently');
+        // Mobile ADDON Dropdown Toggle
+        const mobileAddonBtn = document.getElementById('mobileAddonBtn');
+        const mobileAddonMenu = document.getElementById('mobileAddonMenu');
+        const mobileAddonIcon = document.getElementById('mobileAddonIcon');
+        
+        mobileAddonBtn.addEventListener('click', () => {
+            mobileAddonMenu.classList.toggle('hidden');
+            mobileAddonIcon.classList.toggle('rotate-180');
+        });
+
+        // Fetch Google Sheet CSV Link
+        const googleSheetCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTJIIoaOf1Dzbrenip2CUhUFTyBc6rp2mjcMXHqMtZa2QiuLMD7rXjoFc4Xx2cmzb3V8YaalnjWcD3u/pub?output=csv';
+
+        function loadGoogleSheetData() {
+            Papa.parse(googleSheetCsvUrl, {
+                download: true,
+                header: false,
+                skipEmptyLines: true,
+
+                complete: function(results) {
+                    const rows = results.data;
+                    const grid = document.getElementById('sheetGrid');
+
+                    if (!rows || rows.length <= 1) return;
+
+                    grid.innerHTML = '';
+
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i].slice(0, 14);
+
+                        const serviceName = row[0]
+                            ? row[0].trim()
+                            : `சேவை ${i}`;
+
+                        let reqDocsList = [];
+
+                        for (let j = 1; j < 14; j++) {
+                            if (row[j] && row[j].trim() !== '') {
+                                reqDocsList.push(row[j].trim());
+                            }
+                        }
+
+                        let docsHtml = '';
+
+                        if (reqDocsList.length > 0) {
+                            docsHtml = `
+                                <ol class="list-decimal list-inside space-y-1 text-sm font-semibold text-slate-800 leading-relaxed">
+                            `;
+
+                            reqDocsList.forEach(doc => {
+                                docsHtml += `<li>${doc}</li>`;
+                            });
+
+                            docsHtml += `</ol>`;
+                        } else {
+                            docsHtml = `
+                                <p class="text-sm font-semibold text-slate-800">
+                                    விவரங்களுக்கு கடைக்கு தொடர்பு கொள்ளவும்
+                                </p>
+                            `;
+                        }
+
+                        const card = document.createElement('div');
+
+                        card.className =
+                            "interactive-card bg-white p-6 rounded-2xl border border-slate-200 shadow-md hover:shadow-lg transition flex flex-col justify-between cursor-pointer";
+
+                        card.innerHTML = `
+                            <div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-8 h-8 rounded-lg bg-blue-100 text-brand-blue flex items-center justify-center font-bold text-sm">
+                                        <i class="fa-solid fa-file-check"></i>
+                                    </span>
+
+                                    <h3 class="font-extrabold text-lg text-slate-900">
+                                        ${serviceName}
+                                    </h3>
+                                </div>
+
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2">
+                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                        தேவையான ஆவணங்கள்:
+                                    </p>
+
+                                    ${docsHtml}
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                                <a
+                                    href="https://wa.me/918056202411?text=${encodeURIComponent(
+                                        'வணக்கம், ' + serviceName + ' சேவை பற்றி கேட்க விரும்புகிறேன்.'
+                                    )}"
+                                    target="_blank"
+                                    class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                                >
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                    தகவல் கேட்க
+                                </a>
+
+                                <a
+                                    href="tel:8056202411"
+                                    class="text-xs font-bold text-brand-blue hover:text-blue-800 flex items-center gap-1"
+                                >
+                                    <i class="fa-solid fa-phone"></i>
+                                    8056202411
+                                </a>
+                            </div>
+                        `;
+
+                        grid.appendChild(card);
+                    }
+                },
+
+                error: function(err) {
+                    console.log('Sheet parse completed silently');
+                }
+            });
         }
-    });
-}
 
         // Initialize Sheet Loader on page load
         window.addEventListener('DOMContentLoaded', loadGoogleSheetData);
