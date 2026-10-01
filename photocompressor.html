@@ -1,0 +1,631 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TN & All-India Photo & Signature Compressor</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f5ff',
+              100: '#e0ebff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 25%, #311042 50%, #431407 75%, #0f172a 100%);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.125);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Custom Crop Viewport Container */
+    .crop-viewport-wrapper {
+      background-image: 
+        linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+        linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+        linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    .crop-viewport {
+      position: relative;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 0 25px rgba(236, 72, 153, 0.3), 0 0 0 2px rgba(236, 72, 153, 0.8);
+    }
+
+    .crop-viewport:active {
+      cursor: grabbing;
+    }
+
+    /* Custom range slider thumb styling */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #ec4899;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
+      transition: all 0.2s ease-in-out;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: #f43f5e;
+    }
+
+    /* Pulse Glow Animation */
+    .glow-pulse {
+      animation: pulseGlow 2s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+      100% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.8); }
+    }
+  </style>
+</head>
+<body class="text-slate-100 font-sans antialiased p-3 sm:p-6 md:p-8 flex flex-col items-center justify-center">
+
+  <!-- Header Title -->
+  <header class="text-center max-w-4xl w-full mb-6">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-pink-300 text-xs sm:text-sm font-semibold mb-3 shadow-lg backdrop-blur-md">
+      <i class="fa-solid fa-bolt text-yellow-400"></i> Fast, Local & Secure Portal Compressor
+    </div>
+    <h1 class="text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-400 to-yellow-300 tracking-tight leading-tight mb-2">
+      Tamil Nadu & India Photo Compressor
+    </h1>
+    <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+      Resize, crop, align & compress passport photos and signatures precisely matching strict guidelines for TNPSC, TNeGA, PAN, Bank & National Portals.
+    </p>
+  </header>
+
+  <main class="w-full max-w-5xl glass-panel rounded-3xl p-4 sm:p-8 shadow-2xl border border-white/10 relative overflow-hidden">
+    
+    <!-- Top Decorative Glow Accents -->
+    <div class="absolute -top-24 -left-24 w-60 h-60 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-60 h-60 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Step 1: Preset & Upload Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+      
+      <!-- Target Preset Dropdown Select -->
+      <div class="lg:col-span-7 flex flex-col justify-between">
+        <div>
+          <label for="presetSelect" class="block text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs">1</span>
+            Select Target Portal / Service
+          </label>
+          <div class="relative">
+            <select id="presetSelect" class="w-full bg-slate-900/90 text-white font-medium text-sm sm:text-base rounded-xl px-4 py-3.5 pr-10 border border-slate-700 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all cursor-pointer shadow-inner">
+              
+              <optgroup label="🌟 Tamil Nadu Government Services" class="bg-slate-900 text-pink-300 font-bold">
+                <option value="tnega_photo" selected>TNeGA Photo (240 x 240 px, &lt; 50 KB)</option>
+                <option value="tnpsc_photo">TNPSC Photo [3.5x4.5cm] (276 x 354 px, &lt; 50 KB)</option>
+                <option value="tnpsc_sig">TNPSC Signature [3.5x1.5cm] (276 x 118 px, &lt; 20 KB)</option>
+                <option value="tnega_scholarship_photo">TN e-District Scholarship Photo (200 x 230 px, &lt; 100 KB)</option>
+                <option value="tnega_scholarship_sig">TN e-District Scholarship Signature (140 x 60 px, &lt; 50 KB)</option>
+              </optgroup>
+
+              <optgroup label="💳 PAN Card Services" class="bg-slate-900 text-amber-300 font-bold">
+                <option value="utiitsl_photo">UTIITSL PAN Photo (213 x 213 px, &lt; 30 KB)</option>
+                <option value="utiitsl_sig">UTIITSL PAN Signature (400 x 200 px, &lt; 60 KB)</option>
+                <option value="nsdl_photo">Protean / NSDL PAN Photo (132 x 170 px, &lt; 50 KB)</option>
+                <option value="nsdl_sig">Protean / NSDL PAN Signature (80 x 170 px, &lt; 50 KB)</option>
+              </optgroup>
+
+              <optgroup label="🇮🇳 All-India Recruitment & Exams" class="bg-slate-900 text-emerald-300 font-bold">
+                <option value="banking_photo">Banking / SBI / IBPS Photo (200 x 230 px, &lt; 50 KB)</option>
+                <option value="banking_sig">Banking / SBI / IBPS Signature (140 x 60 px, &lt; 20 KB)</option>
+                <option value="ssc_sig">SSC Signature (140 x 60 px, &lt; 20 KB)</option>
+                <option value="upsc_photo">UPSC Photo (350 x 350 px, &lt; 300 KB)</option>
+                <option value="upsc_sig">UPSC Signature (350 x 350 px, &lt; 300 KB)</option>
+                <option value="nta_photo">NTA NEET/JEE Photo (350 x 450 px, &lt; 200 KB)</option>
+                <option value="nta_sig">NTA NEET/JEE Signature (140 x 60 px, &lt; 30 KB)</option>
+              </optgroup>
+
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-cyan-400">
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Specs Pill -->
+        <div id="specPill" class="mt-4 p-3.5 rounded-2xl glass-card border border-cyan-500/30 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-lg shadow-md">
+              <i class="fa-solid fa-sliders"></i>
+            </div>
+            <div>
+              <div id="specPortalName" class="text-xs text-slate-400 font-medium">Selected Specification</div>
+              <div id="specTitle" class="text-sm font-bold text-white">TNeGA Photo</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span id="specDimensions" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold">240 x 240 px</span>
+            <span id="specMaxKb" class="px-2.5 py-1 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-500/30 font-semibold">&lt; 50 KB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image File Upload Input Area -->
+      <div class="lg:col-span-5 flex flex-col justify-between">
+        <label class="block text-xs font-bold uppercase tracking-wider text-pink-300 mb-2 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-pink-500/20 text-pink-300 flex items-center justify-center text-xs">2</span>
+          Upload Image
+        </label>
+        <div class="relative group h-full">
+          <input type="file" id="fileInput" accept="image/jpeg, image/jpg, image/png, image/webp" class="hidden">
+          <label for="fileInput" class="h-full min-h-[120px] flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-600 hover:border-pink-400 bg-slate-900/50 hover:bg-slate-900/80 rounded-2xl cursor-pointer transition-all text-center group">
+            <div class="w-12 h-12 rounded-full bg-pink-500/10 group-hover:bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl mb-2 transition-transform group-hover:scale-110">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <span class="text-sm font-semibold text-slate-200 group-hover:text-pink-300 transition-colors">Click or Drag Image Here</span>
+            <span class="text-xs text-slate-400 mt-1">Supports JPG, PNG, WEBP files</span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Step 2: Interactive Manipulation Area (Shown after upload) -->
+    <div id="editorArea" class="hidden flex-col items-center pt-6 border-t border-slate-700/60 animate-fade-in">
+      
+      <!-- Toolbar Controls -->
+      <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+        
+        <!-- Zoom Slider -->
+        <div class="flex flex-col justify-center gap-2">
+          <div class="flex justify-between items-center">
+            <label for="zoomRange" class="text-xs font-bold uppercase tracking-wider text-yellow-300 flex items-center gap-2">
+              <i class="fa-solid fa-magnifying-glass-plus"></i> Zoom & Fit Image
+            </label>
+            <span id="zoomValText" class="text-xs font-mono bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded-md border border-yellow-500/30">1.0x</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="zoomOutBtn" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition-colors">
+              <i class="fa-solid fa-minus"></i>
+            </button>
+            <input type="range" id="zoomRange" min="0.1" max="3" step="0.01" value="1" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+            <button id="zoomInBtn" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition-colors">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Rotate Buttons -->
+        <div class="flex flex-col justify-center gap-2">
+          <label class="text-xs font-bold uppercase tracking-wider text-purple-300 flex items-center gap-2">
+            <i class="fa-solid fa-rotate"></i> Alignment & Orientation
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="rotateLeftBtn" class="py-2 px-3 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
+              <i class="fa-solid fa-rotate-left"></i> Rotate ↺ 90°
+            </button>
+            <button id="rotateRightBtn" class="py-2 px-3 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/40 text-rose-200 text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
+              <i class="fa-solid fa-rotate-right"></i> Rotate ↻ 90°
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Instructions & Drag Handle Helper -->
+      <div class="text-center text-xs text-slate-400 mb-3 flex items-center gap-2 bg-slate-800/50 px-4 py-1.5 rounded-full border border-slate-700">
+        <i class="fa-solid fa-hand-pointer text-pink-400"></i> Click & Drag photo inside box below to align head/signature
+      </div>
+
+      <!-- Interactive Crop Viewport Frame -->
+      <div class="crop-viewport-wrapper p-4 sm:p-6 rounded-2xl border border-slate-700 shadow-2xl flex items-center justify-center overflow-auto max-w-full">
+        <div id="viewport" class="crop-viewport rounded-lg overflow-hidden bg-white">
+          <canvas id="displayCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Real-Time Estimated File Size Badge -->
+      <div class="mt-4 flex items-center gap-3">
+        <div class="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700 text-xs flex items-center gap-2">
+          <span class="text-slate-400">Estimated Output Size:</span>
+          <span id="estSizeText" class="font-bold text-emerald-400 font-mono">-- KB</span>
+        </div>
+        <div id="statusBadge" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-check"></i> Compliant
+        </div>
+      </div>
+
+      <!-- Step 3: Download Button -->
+      <div class="mt-6 w-full flex justify-center">
+        <button id="downloadBtn" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-base tracking-wide flex items-center justify-center gap-3 shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 glow-pulse cursor-pointer">
+          <i class="fa-solid fa-download text-xl"></i>
+          <span>Download Processed Image</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer Info & Credits -->
+  <footer class="mt-8 text-center text-xs text-slate-400 max-w-2xl">
+    <p class="mb-1">⚡ All processing happens strictly in your web browser. No photos are uploaded to any server.</p>
+    <p class="text-slate-500">TNeGA • TNPSC • UTIITSL • NSDL • SBI/IBPS • SSC • UPSC • NTA Guidelines Compliant</p>
+  </footer>
+
+  <!-- Hidden Processing Canvas -->
+  <canvas id="hiddenCanvas" class="hidden"></canvas>
+
+  <script>
+    // Master Specifications Preset Matrix
+    const PRESETS = {
+      tnega_photo: { 
+        width: 240, height: 240, maxKb: 50, filename: "TNeGA_Photo.jpg", 
+        title: "TNeGA e-Sevai Photo", portal: "Tamil Nadu e-Governance" 
+      },
+      tnpsc_photo: { 
+        width: 276, height: 354, maxKb: 50, filename: "TNPSC_Photo.jpg", 
+        title: "TNPSC Photo (3.5x4.5 cm)", portal: "TNPSC OTR Portal" 
+      },
+      tnpsc_sig: { 
+        width: 276, height: 118, maxKb: 20, filename: "TNPSC_Signature.jpg", 
+        title: "TNPSC Signature (3.5x1.5 cm)", portal: "TNPSC OTR Portal" 
+      },
+      tnega_scholarship_photo: { 
+        width: 200, height: 230, maxKb: 100, filename: "TN_Scholarship_Photo.jpg", 
+        title: "TN Scholarship Photo", portal: "TN e-District Portal" 
+      },
+      tnega_scholarship_sig: { 
+        width: 140, height: 60, maxKb: 50, filename: "TN_Scholarship_Sig.jpg", 
+        title: "TN Scholarship Signature", portal: "TN e-District Portal" 
+      },
+      utiitsl_photo: { 
+        width: 213, height: 213, maxKb: 30, filename: "UTIITSL_PAN_Photo.jpg", 
+        title: "UTIITSL PAN Photo (300 DPI)", portal: "UTIITSL PAN Online" 
+      },
+      utiitsl_sig: { 
+        width: 400, height: 200, maxKb: 60, filename: "UTIITSL_PAN_Sig.jpg", 
+        title: "UTIITSL PAN Signature (600 DPI)", portal: "UTIITSL PAN Online" 
+      },
+      nsdl_photo: { 
+        width: 132, height: 170, maxKb: 50, filename: "NSDL_PAN_Photo.jpg", 
+        title: "Protean / NSDL Photo", portal: "Protean NSDL Portal" 
+      },
+      nsdl_sig: { 
+        width: 80, height: 170, maxKb: 50, filename: "NSDL_PAN_Sig.jpg", 
+        title: "Protean / NSDL Signature", portal: "Protean NSDL Portal" 
+      },
+      banking_photo: { 
+        width: 200, height: 230, maxKb: 50, filename: "Banking_Photo.jpg", 
+        title: "SBI / IBPS Bank Photo", portal: "Banking Recruitment" 
+      },
+      banking_sig: { 
+        width: 140, height: 60, maxKb: 20, filename: "Banking_Signature.jpg", 
+        title: "SBI / IBPS Bank Signature", portal: "Banking Recruitment" 
+      },
+      ssc_sig: { 
+        width: 140, height: 60, maxKb: 20, filename: "SSC_Signature.jpg", 
+        title: "SSC Signature", portal: "Staff Selection Commission" 
+      },
+      upsc_photo: { 
+        width: 350, height: 350, maxKb: 300, filename: "UPSC_Photo.jpg", 
+        title: "UPSC Passport Photo", portal: "UPSC OTR Portal" 
+      },
+      upsc_sig: { 
+        width: 350, height: 350, maxKb: 300, filename: "UPSC_Signature.jpg", 
+        title: "UPSC Signature", portal: "UPSC OTR Portal" 
+      },
+      nta_photo: { 
+        width: 350, height: 450, maxKb: 200, filename: "NTA_NEET_JEE_Photo.jpg", 
+        title: "NTA NEET / JEE Photo", portal: "National Testing Agency" 
+      },
+      nta_sig: { 
+        width: 140, height: 60, maxKb: 30, filename: "NTA_NEET_JEE_Sig.jpg", 
+        title: "NTA NEET / JEE Signature", portal: "National Testing Agency" 
+      }
+    };
+
+    // Application State Variables
+    let currentPreset = PRESETS.tnega_photo;
+    let img = new Image();
+    let imgLoaded = false;
+
+    let scale = 1.0;
+    let rotation = 0; // 0, 90, 180, 270
+    let posX = 0;
+    let posY = 0;
+
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    // DOM Elements
+    const presetSelect = document.getElementById('presetSelect');
+    const fileInput = document.getElementById('fileInput');
+    const editorArea = document.getElementById('editorArea');
+    const viewport = document.getElementById('viewport');
+    const canvas = document.getElementById('displayCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const zoomRange = document.getElementById('zoomRange');
+    const zoomValText = document.getElementById('zoomValText');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    
+    const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+    const rotateRightBtn = document.getElementById('rotateRightBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const specPortalName = document.getElementById('specPortalName');
+    const specTitle = document.getElementById('specTitle');
+    const specDimensions = document.getElementById('specDimensions');
+    const specMaxKb = document.getElementById('specMaxKb');
+    const estSizeText = document.getElementById('estSizeText');
+    const statusBadge = document.getElementById('statusBadge');
+
+    // Update Preset Details Pill
+    function updateSpecPill() {
+      specPortalName.textContent = currentPreset.portal;
+      specTitle.textContent = currentPreset.title;
+      specDimensions.textContent = `${currentPreset.width} x ${currentPreset.height} px`;
+      specMaxKb.textContent = `< ${currentPreset.maxKb} KB`;
+    }
+
+    // Handle Preset Selector Change
+    presetSelect.addEventListener('change', (e) => {
+      currentPreset = PRESETS[e.target.value];
+      updateSpecPill();
+      updateViewportSize();
+      if (imgLoaded) resetTransform();
+    });
+
+    // Update Display Viewport Dimensions
+    function updateViewportSize() {
+      viewport.style.width = currentPreset.width + 'px';
+      viewport.style.height = currentPreset.height + 'px';
+      canvas.width = currentPreset.width;
+      canvas.height = currentPreset.height;
+      if (imgLoaded) draw();
+    }
+
+    // File Input Upload Event
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        img = new Image();
+        img.onload = () => {
+          imgLoaded = true;
+          editorArea.classList.remove('hidden');
+          editorArea.classList.add('flex');
+          updateSpecPill();
+          updateViewportSize();
+          resetTransform();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset Zoom and Position to Auto Cover Box
+    function resetTransform() {
+      rotation = 0;
+      
+      const scaleX = currentPreset.width / img.width;
+      const scaleY = currentPreset.height / img.height;
+      scale = Math.max(scaleX, scaleY);
+
+      zoomRange.value = scale;
+      zoomRange.min = (scale * 0.2).toFixed(2);
+      zoomRange.max = (scale * 4.0).toFixed(2);
+      zoomValText.textContent = scale.toFixed(2) + 'x';
+
+      posX = (currentPreset.width - img.width * scale) / 2;
+      posY = (currentPreset.height - img.height * scale) / 2;
+
+      draw();
+    }
+
+    // Core Rendering Loop
+    function draw() {
+      if (!imgLoaded) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+
+      // Ensure crisp white background for transparent PNG signatures
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Translate to center for rotation
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((rotation * Math.PI) / 180);
+
+      const drawX = posX - canvas.width / 2;
+      const drawY = posY - canvas.height / 2;
+
+      ctx.drawImage(img, drawX, drawY, img.width * scale, img.height * scale);
+      ctx.restore();
+
+      // Estimate compressed output file size
+      updateEstimatedSize();
+    }
+
+    // Estimate file size in real-time
+    function updateEstimatedSize() {
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const kb = (blob.size / 1024).toFixed(1);
+        estSizeText.textContent = `${kb} KB`;
+
+        if (kb <= currentPreset.maxKb) {
+          statusBadge.className = "px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5";
+          statusBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Compliant (&lt;${currentPreset.maxKb}KB)`;
+        } else {
+          statusBadge.className = "px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5";
+          statusBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Auto-compress on download`;
+        }
+      }, 'image/jpeg', 0.85);
+    }
+
+    // Zoom Controls
+    zoomRange.addEventListener('input', (e) => {
+      applyZoom(parseFloat(e.target.value));
+    });
+
+    zoomInBtn.addEventListener('click', () => {
+      let step = (parseFloat(zoomRange.max) - parseFloat(zoomRange.min)) / 20;
+      applyZoom(Math.min(parseFloat(zoomRange.max), scale + step));
+    });
+
+    zoomOutBtn.addEventListener('click', () => {
+      let step = (parseFloat(zoomRange.max) - parseFloat(zoomRange.min)) / 20;
+      applyZoom(Math.max(parseFloat(zoomRange.min), scale - step));
+    });
+
+    function applyZoom(newScale) {
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      posX = centerX - (centerX - posX) * (newScale / scale);
+      posY = centerY - (centerY - posY) * (newScale / scale);
+      scale = newScale;
+      zoomRange.value = scale;
+      zoomValText.textContent = scale.toFixed(2) + 'x';
+      draw();
+    }
+
+    // Rotation Events
+    rotateLeftBtn.addEventListener('click', () => {
+      rotation = (rotation - 90 + 360) % 360;
+      draw();
+    });
+
+    rotateRightBtn.addEventListener('click', () => {
+      rotation = (rotation + 90) % 360;
+      draw();
+    });
+
+    // Drag / Pan Interactions (Mouse)
+    viewport.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX - posX;
+      startY = e.clientY - posY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      posX = e.clientX - startX;
+      posY = e.clientY - startY;
+      draw();
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    // Drag / Pan Interactions (Touch)
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - posX;
+        startY = e.touches[0].clientY - posY;
+      }
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      posX = e.touches[0].clientX - startX;
+      posY = e.touches[0].clientY - startY;
+      draw();
+    });
+
+    window.addEventListener('touchend', () => { isDragging = false; });
+
+    // Download & Auto Compression Engine
+    downloadBtn.addEventListener('click', async () => {
+      if (!imgLoaded) return;
+
+      const originalBtnHtml = downloadBtn.innerHTML;
+      downloadBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Compressing & Preparing...</span>`;
+      downloadBtn.disabled = true;
+
+      // Iterative JPEG quality reduction loop until maxKb limit is satisfied
+      let quality = 0.95;
+      let blob = null;
+      let kbSize = 0;
+
+      do {
+        blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
+        kbSize = blob.size / 1024;
+        quality -= 0.04;
+      } while (kbSize > currentPreset.maxKb && quality > 0.05);
+
+      // Trigger Download
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = currentPreset.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+
+      // Restore Button State with Feedback
+      downloadBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Downloaded (${kbSize.toFixed(1)} KB)!</span>`;
+      setTimeout(() => {
+        downloadBtn.innerHTML = originalBtnHtml;
+        downloadBtn.disabled = false;
+      }, 2500);
+    });
+
+    // Initialize Spec Pill on Page Load
+    updateSpecPill();
+  </script>
+</body>
+</html>
+```
