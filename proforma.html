@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proforma Invoice Maker (INR)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts for Template Personalities -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        cinzel: ['Cinzel', 'serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Template Custom Styles */
+        .template-modern {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .template-minimalist {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .template-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .template-vibrant {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .template-compact {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* Clean Print CSS rules */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-area {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            input, select, textarea {
+                border: none !important;
+                background: transparent !important;
+                resize: none !important;
+                outline: none !important;
+                padding: 0 !important;
+                appearance: none !important;
+            }
+            /* Hide placeholders in print */
+            ::placeholder {
+                color: transparent !important;
+            }
+        }
+
+        /* Custom Scrollbar for Drawer */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-700">
+
+<div class="min-h-screen flex flex-col">
+    <!-- Top Action Navigation Bar -->
+    <header class="no-print sticky top-0 z-30 bg-slate-900 text-white border-b border-slate-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 p-2 rounded-lg text-white shadow-md">
+                    <i data-lucide="receipt" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
+                        Proforma Invoice Studio
+                        <span class="text-xs bg-blue-500/20 text-blue-300 border border-blue-400/30 px-2 py-0.5 rounded-full font-mono">INR (₹)</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">Multi-Company & 5 Distinct Visual Layout Engine</p>
+                </div>
+            </div>
+
+            <!-- Action Toolbar -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="toggleHistoryDrawer()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="history" class="w-4 h-4 text-blue-400"></i>
+                    <span>History</span>
+                    <span id="historyCountBadge" class="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full ml-1">0</span>
+                </button>
+
+                <button onclick="openCompanyModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="building-2" class="w-4 h-4 text-emerald-400"></i>
+                    <span class="hidden sm:inline">Companies</span>
+                </button>
+
+                <button onclick="saveCurrentInvoice()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition shadow-md flex items-center gap-1.5">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    <span>Save</span>
+                </button>
+
+                <button onclick="triggerPrint()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition shadow-md flex items-center gap-1.5">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Print / PDF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Sidebar: Controls & Template Selector (no-print) -->
+        <aside class="no-print lg:col-span-4 space-y-6">
+            <!-- Company & Style Selector Card -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h2 class="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i> Active Profile & Style
+                    </h2>
+                    <button onclick="openCompanyModal()" class="text-xs text-blue-600 hover:underline font-medium">+ Manage</button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Select Business Profile</label>
+                    <select id="companySelector" onchange="switchCompanyProfile(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <!-- Options generated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Template Style Preset</label>
+                    <select id="templateSelector" onchange="changeTemplateStyle(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="modern">1. Modern Corporate (Blue Header Banner)</option>
+                        <option value="minimalist">2. Minimalist Dark (Sleek Monospace Border)</option>
+                        <option value="serif">3. Elegant Serif (Classic Gold Accent)</option>
+                        <option value="vibrant">4. Tech Startup (Vibrant Gradient Pill)</option>
+                        <option value="compact">5. Compact Receipt (Thermal Style Layout)</option>
+                    </select>
+                </div>
+
+                <div id="activeThemeBadge" class="p-3 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-800 flex items-start gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
+                    <span id="themeDescriptionText">Corporate layout with full width banner headers and structured tabular layout.</span>
+                </div>
+            </div>
+
+            <!-- Global Invoice Settings & Quick Actions -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                <h2 class="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider border-b border-slate-100 pb-3">
+                    <i data-lucide="sliders" class="w-4 h-4 text-blue-600"></i> Tax & Terms Presets
+                </h2>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">GST Rate (%)</label>
+                        <div class="relative">
+                            <input type="number" id="gstRateInput" value="18" min="0" max="28" step="0.5" oninput="recalculateInvoiceTotals()" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">GST Split Type</label>
+                        <select id="gstTypeInput" onchange="recalculateInvoiceTotals()" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="CGST_SGST">CGST (9%) + SGST (9%)</option>
+                            <option value="IGST">IGST (18% Single Tax)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="resetInvoiceForm()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Reset Form & Clear Items</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Main Canvas: Interactive Invoice Sheet (Print Target) -->
+        <section class="lg:col-span-8">
+            <div id="invoiceCanvas" class="print-area bg-white rounded-xl shadow-xl border border-slate-200 p-6 sm:p-10 transition-all duration-300 min-h-[1050px] flex flex-col justify-between">
+                
+                <!-- Dynamic Content Form Box -->
+                <div class="space-y-6">
+                    <!-- Top Dynamic Header (Style Dependent Insertion) -->
+                    <div id="headerTemplateContainer">
+                        <!-- Rendered by JS Template Engine -->
+                    </div>
+
+                    <!-- Invoice Dates and Identifiers Row -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-lg bg-slate-50/80 border border-slate-100 my-4 text-xs">
+                        <div>
+                            <span class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Proforma No.</span>
+                            <input type="text" id="invNumber" value="PI-2026-8801" class="font-mono font-bold text-slate-800 bg-transparent border-b border-dashed border-slate-300 focus:border-blue-500 outline-none w-full">
+                        </div>
+                        <div>
+                            <span class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Issue Date</span>
+                            <input type="date" id="invDate" class="font-medium text-slate-700 bg-transparent border-b border-dashed border-slate-300 focus:border-blue-500 outline-none w-full">
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <span class="block font-semibold text-slate-400 uppercase tracking-wider mb-1">Valid Until</span>
+                            <input type="date" id="invDueDate" class="font-medium text-slate-700 bg-transparent border-b border-dashed border-slate-300 focus:border-blue-500 outline-none w-full">
+                        </div>
+                    </div>
+
+                    <!-- Customer / Billed To Info -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                        <!-- Company Details Display (Read only / Auto synced) -->
+                        <div class="p-3 rounded-lg border border-transparent hover:border-slate-200 transition">
+                            <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Billed From (Provider)</span>
+                            <div id="sellerDetailsContainer" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Buyer Editable Details -->
+                        <div class="p-3 rounded-lg border border-slate-200 bg-white shadow-xs">
+                            <span class="block text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">Billed To (Customer Details)</span>
+                            <input type="text" id="clientName" placeholder="Client / Company Name" class="font-bold text-slate-800 text-sm outline-none w-full mb-1 border-b border-transparent hover:border-slate-300 focus:border-blue-500">
+                            <input type="text" id="clientGst" placeholder="Client GSTIN (Optional)" class="font-mono text-xs text-slate-600 outline-none w-full mb-2 border-b border-transparent hover:border-slate-300 focus:border-blue-500">
+                            <textarea id="clientAddress" rows="3" placeholder="Billing Address, City, State, Pincode" class="text-xs text-slate-600 w-full outline-none resize-none hover:bg-slate-50 focus:bg-slate-50 p-1 rounded"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Line Items Table -->
+                    <div class="overflow-x-auto pt-4">
+                        <table class="w-full text-left text-xs" id="lineItemsTable">
+                            <thead id="tableHeaderContainer">
+                                <!-- Dynamic styled header -->
+                            </thead>
+                            <tbody id="lineItemsBody" class="divide-y divide-slate-100">
+                                <!-- Items rendered dynamically -->
+                            </tbody>
+                        </table>
+
+                        <button onclick="addNewLineItem()" class="no-print mt-3 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition flex items-center gap-1 border border-dashed border-blue-200">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Add Item Line</span>
+                        </button>
+                    </div>
+
+                    <!-- Totals & Calculations Section -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start pt-6 border-t border-slate-200 gap-6">
+                        <!-- Left Note & Bank Details -->
+                        <div class="w-full sm:w-1/2 space-y-4 text-xs">
+                            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200/80">
+                                <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px] block mb-1">Bank Payment Wire Details</span>
+                                <textarea id="bankDetailsDisplay" rows="3" class="w-full bg-transparent border-none text-xs text-slate-600 outline-none resize-none" placeholder="Bank Name, Account No, IFSC Code, Branch"></textarea>
+                            </div>
+                            <div>
+                                <span class="font-bold text-slate-500 uppercase tracking-wider text-[10px] block mb-1">Terms & Conditions</span>
+                                <textarea id="termsDisplay" rows="2" class="w-full text-[11px] text-slate-500 outline-none border-b border-transparent hover:border-slate-200 resize-none">1. This is a Proforma Invoice, not an official tax invoice.&#10;2. Goods/Services delivered after 100% advance clearance.</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Right Calculation Summary -->
+                        <div class="w-full sm:w-5/12 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Subtotal:</span>
+                                <span class="font-mono font-medium">₹ <span id="subtotalDisplay">0.00</span></span>
+                            </div>
+
+                            <div id="gstSplitBreakdown" class="space-y-1 text-slate-500 text-[11px] border-t border-slate-200/60 pt-2">
+                                <!-- Tax split calculated in JS -->
+                            </div>
+
+                            <div class="flex justify-between items-center text-slate-900 font-bold text-sm pt-2 border-t border-slate-300">
+                                <span class="uppercase tracking-wider">Total Amount (INR):</span>
+                                <span class="font-mono text-base text-blue-700">₹ <span id="grandTotalDisplay">0.00</span></span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 text-right italic font-sans" id="amountInWordsText">
+                                <!-- Amount in words dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Signatory Line -->
+                <div class="mt-12 pt-6 border-t border-slate-200 flex justify-between items-end text-xs text-slate-500">
+                    <div>
+                        <p class="font-medium">Thank you for your business!</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Computer Generated Proforma Document</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="h-10 border-b border-slate-300 w-40 mb-1"></div>
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Authorized Signatory</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- History Drawer (Slide-over) -->
+<div id="historyDrawer" class="no-print fixed inset-0 z-50 overflow-hidden hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" onclick="toggleHistoryDrawer()"></div>
+    <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <div class="pointer-events-auto w-screen max-w-md bg-white shadow-2xl flex flex-col">
+            <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="history" class="w-5 h-5 text-blue-400"></i>
+                    <h2 class="font-bold text-base">Invoice History Log</h2>
+                </div>
+                <button onclick="toggleHistoryDrawer()" class="text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-3 border-b border-slate-200 bg-slate-50">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                    <input type="text" id="historySearchInput" onkeyup="renderHistoryList()" placeholder="Filter by invoice # or client..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-3" id="historyListContainer">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Manage Companies -->
+<div id="companyModal" class="no-print fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs hidden p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+            <h3 class="font-bold text-sm flex items-center gap-2">
+                <i data-lucide="building-2" class="w-4 h-4 text-emerald-400"></i>
+                Add Business Profile
+            </h3>
+            <button onclick="closeCompanyModal()" class="text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form onsubmit="handleCompanySubmit(event)" class="p-5 space-y-4 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Company / Firm Name *</label>
+                <input type="text" id="mCompName" required placeholder="e.g. Zenith Tech Solutions Pvt Ltd" class="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">GSTIN / PAN *</label>
+                    <input type="text" id="mCompGst" required placeholder="33AAAAA0000A1Z5" class="w-full p-2 font-mono border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Default Template</label>
+                    <select id="mCompTemplate" class="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="modern">Modern Corporate</option>
+                        <option value="minimalist">Minimalist Dark</option>
+                        <option value="serif">Elegant Serif</option>
+                        <option value="vibrant">Tech Startup</option>
+                        <option value="compact">Compact Receipt</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Full Registered Address</label>
+                <textarea id="mCompAddress" rows="3" required placeholder="Building, Street, City, State, Pincode" class="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Bank Wiring Details</label>
+                <textarea id="mCompBank" rows="2" placeholder="Bank Name: HDFC Bank&#10;A/C: 50200012345678 | IFSC: HDFC0001234" class="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+
+            <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                <button type="button" onclick="closeCompanyModal()" class="px-4 py-2 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-md">Save Business Profile</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Initial Seed Companies with 5 Different Default Templates
+    const DEFAULT_COMPANIES = [
+        {
+            id: "comp_1",
+            name: "Apex Corporate Technologies",
+            gst: "33AAAAC1234A1Z1",
+            template: "modern",
+            address: "Suite 402, Cyber Tower, Guindy\nChennai, Tamil Nadu - 600032",
+            bank: "ICICI Bank Ltd | A/C: 000405012345\nIFSC: ICIC0000004 | Branch: T.Nagar"
+        },
+        {
+            id: "comp_2",
+            name: "Monochrome Labs & Co",
+            gst: "27BBBBB5678B1Z2",
+            template: "minimalist",
+            address: "88 BKC Innovation Hub, Bandra East\nMumbai, Maharashtra - 400051",
+            bank: "HDFC Bank | A/C: 50200088991122\nIFSC: HDFC0000240 | Branch: BKC Complex"
+        },
+        {
+            id: "comp_3",
+            name: "Royal Heritage Atelier",
+            gst: "29CCCCC9012C1Z3",
+            template: "serif",
+            address: "14 Palace Road, Vasanth Nagar\nBengaluru, Karnataka - 560052",
+            bank: "Axis Bank | A/C: 918020033445566\nIFSC: UTIB0000010 | Branch: MG Road"
+        },
+        {
+            id: "comp_4",
+            name: "HyperPulse SaaS Systems",
+            gst: "07DDDDD3456D1Z4",
+            template: "vibrant",
+            address: "Level 5, Connaught Place Sector 3\nNew Delhi, Delhi - 110001",
+            bank: "Kotak Mahindra Bank | A/C: 7811223344\nIFSC: KKBK0000181 | Branch: CP Branch"
+        },
+        {
+            id: "comp_5",
+            name: "Express Logistics Services",
+            gst: "36EEEEE7890E1Z5",
+            template: "compact",
+            address: "Plot 12, HITEC Cargo Zone\nHyderabad, Telangana - 500081",
+            bank: "State Bank of India | A/C: 30987654321\nIFSC: SBIN0004250 | Branch: HITEC City"
+        }
+    ];
+
+    // State Holders
+    let companies = JSON.parse(localStorage.getItem('proforma_companies_v3')) || DEFAULT_COMPANIES;
+    let invoices = JSON.parse(localStorage.getItem('proforma_invoices_v3')) || [];
+    let activeCompany = companies[0];
+    let currentStyle = activeCompany.template || "modern";
+
+    // On Load Setup
+    window.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+        initDates();
+        renderCompanySelector();
+        switchCompanyProfile(companies[0].id);
+        renderHistoryList();
+    });
+
+    function initDates() {
+        const today = new Date();
+        document.getElementById('invDate').value = today.toISOString().split('T')[0];
+        
+        const validUntil = new Date();
+        validUntil.setDate(today.getDate() + 15);
+        document.getElementById('invDueDate').value = validUntil.toISOString().split('T')[0];
+    }
+
+    function renderCompanySelector() {
+        const sel = document.getElementById('companySelector');
+        sel.innerHTML = companies.map(c => `
+            <option value="${c.id}">${c.name} (${c.template.toUpperCase()})</option>
+        `).join('');
+    }
+
+    function switchCompanyProfile(compId) {
+        const found = companies.find(c => c.id === compId);
+        if (!found) return;
+
+        activeCompany = found;
+        document.getElementById('companySelector').value = compId;
+        
+        // Update Address & Bank
+        document.getElementById('sellerDetailsContainer').innerHTML = `
+            <span class="font-bold text-slate-800 text-sm">${found.name}</span><br>
+            <span class="font-mono text-[11px] text-slate-500">GSTIN: ${found.gst}</span><br>
+            ${found.address.replace(/\n/g, '<br>')}
+        `;
+        document.getElementById('bankDetailsDisplay').value = found.bank;
+
+        // Apply company's assigned template
+        changeTemplateStyle(found.template);
+    }
+
+    function changeTemplateStyle(styleKey) {
+        currentStyle = styleKey;
+        document.getElementById('templateSelector').value = styleKey;
+
+        const canvas = document.getElementById('invoiceCanvas');
+        const headerBox = document.getElementById('headerTemplateContainer');
+        const tableHeader = document.getElementById('tableHeaderContainer');
+        const infoBadge = document.getElementById('themeDescriptionText');
+
+        // Reset class attributes
+        canvas.className = "print-area bg-white rounded-xl shadow-xl border border-slate-200 p-6 sm:p-10 transition-all duration-300 min-h-[1000px] flex flex-col justify-between ";
+
+        // Inject headers based on 5 template themes
+        if (styleKey === 'modern') {
+            canvas.classList.add('template-modern');
+            infoBadge.innerText = "Corporate layout with prominent blue header banner, clean layout and bold structure.";
+            
+            headerBox.innerHTML = `
+                <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white p-6 -mx-6 sm:-mx-10 -mt-6 sm:-mt-10 rounded-t-xl flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-black uppercase tracking-wider">PROFORMA INVOICE</h1>
+                        <p class="text-xs text-blue-200 mt-0.5">Commercial Estimation Document</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-mono bg-blue-800/80 px-2.5 py-1 rounded text-blue-100 border border-blue-700">INR (₹) Billing</span>
+                    </div>
+                </div>
+            `;
+
+            tableHeader.innerHTML = `
+                <tr class="bg-slate-100 text-slate-700 font-bold border-b-2 border-slate-300">
+                    <th class="p-2.5 w-1/2">Item Description</th>
+                    <th class="p-2.5 text-center">HSN/SAC</th>
+                    <th class="p-2.5 text-center">Qty</th>
+                    <th class="p-2.5 text-right">Rate (₹)</th>
+                    <th class="p-2.5 text-right">Amount (₹)</th>
+                    <th class="p-2.5 no-print"></th>
+                </tr>
+            `;
+
+        } else if (styleKey === 'minimalist') {
+            canvas.classList.add('template-minimalist');
+            infoBadge.innerText = "Minimalist dark monospace style with high contrast border frames and sharp typography.";
+
+            headerBox.innerHTML = `
+                <div class="border-b-4 border-slate-900 pb-4 flex justify-between items-end">
+                    <div>
+                        <span class="text-xs bg-slate-900 text-white px-2 py-0.5 font-bold uppercase tracking-widest">OFFICIAL ESTIMATE</span>
+                        <h1 class="text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">PROFORMA // INVOICE</h1>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                        <p class="font-bold text-slate-900">CURRENCY: INR (₹)</p>
+                    </div>
+                </div>
+            `;
+
+            tableHeader.innerHTML = `
+                <tr class="bg-slate-900 text-white font-mono uppercase text-[11px]">
+                    <th class="p-2.5">Description</th>
+                    <th class="p-2.5 text-center">HSN</th>
+                    <th class="p-2.5 text-center">Qty</th>
+                    <th class="p-2.5 text-right">Rate</th>
+                    <th class="p-2.5 text-right">Total</th>
+                    <th class="p-2.5 no-print"></th>
+                </tr>
+            `;
+
+        } else if (styleKey === 'serif') {
+            canvas.classList.add('template-serif');
+            infoBadge.innerText = "Elegant serif layout featuring warm gold border accents and traditional luxury styling.";
+
+            headerBox.innerHTML = `
+                <div class="text-center border-b-2 border-amber-600/40 pb-5">
+                    <h1 class="font-cinzel text-3xl font-bold text-amber-900 tracking-widest uppercase">Proforma Invoice</h1>
+                    <div class="w-16 h-0.5 bg-amber-600 mx-auto my-2"></div>
+                    <p class="text-xs text-amber-800/80 italic">Formal Business Quote & Price Affirmation</p>
+                </div>
+            `;
+
+            tableHeader.innerHTML = `
+                <tr class="bg-amber-900/10 text-amber-950 font-serif border-b border-amber-600/30">
+                    <th class="p-2.5">Item Description</th>
+                    <th class="p-2.5 text-center">HSN/SAC</th>
+                    <th class="p-2.5 text-center">Qty</th>
+                    <th class="p-2.5 text-right">Rate (₹)</th>
+                    <th class="p-2.5 text-right">Amount (₹)</th>
+                    <th class="p-2.5 no-print"></th>
+                </tr>
+            `;
+
+        } else if (styleKey === 'vibrant') {
+            canvas.classList.add('template-vibrant');
+            infoBadge.innerText = "Tech startup aesthetic with colorful gradients, pill badges, and clean modern spacing.";
+
+            headerBox.innerHTML = `
+                <div class="flex justify-between items-center bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white p-5 rounded-2xl shadow-md">
+                    <div>
+                        <span class="bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">Proforma Quote</span>
+                        <h1 class="text-2xl font-black mt-1">Estimation Invoice</h1>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold bg-white text-purple-900 px-3 py-1.5 rounded-full shadow-xs">INR Currency (₹)</span>
+                    </div>
+                </div>
+            `;
+
+            tableHeader.innerHTML = `
+                <tr class="bg-purple-50 text-purple-900 font-jakarta font-bold text-xs rounded-lg">
+                    <th class="p-3 rounded-l-lg">Description</th>
+                    <th class="p-3 text-center">HSN/SAC</th>
+                    <th class="p-3 text-center">Qty</th>
+                    <th class="p-3 text-right">Rate (₹)</th>
+                    <th class="p-3 text-right">Amount (₹)</th>
+                    <th class="p-3 rounded-r-lg no-print"></th>
+                </tr>
+            `;
+
+        } else if (styleKey === 'compact') {
+            canvas.classList.add('template-compact');
+            infoBadge.innerText = "Compact receipt layout optimized for fast billing and high-density printing.";
+
+            headerBox.innerHTML = `
+                <div class="border-2 border-dashed border-slate-300 p-4 text-center bg-slate-50 rounded-lg">
+                    <h1 class="text-xl font-bold tracking-wider text-slate-800 uppercase">PROFORMA INVOICE RECEIPT</h1>
+                    <p class="text-[11px] text-slate-500">Fast Commercial Order Summary (INR)</p>
+                </div>
+            `;
+
+            tableHeader.innerHTML = `
+                <tr class="border-y-2 border-slate-800 text-slate-800 font-bold uppercase text-[10px]">
+                    <th class="py-2">Item</th>
+                    <th class="py-2 text-center">HSN</th>
+                    <th class="py-2 text-center">Qty</th>
+                    <th class="py-2 text-right">Rate</th>
+                    <th class="py-2 text-right">Amount</th>
+                    <th class="py-2 no-print"></th>
+                </tr>
+            `;
+        }
+
+        recalculateInvoiceTotals();
+    }
+
+    function addNewLineItem(desc = '', hsn = '', qty = 1, rate = 0) {
+        const tbody = document.getElementById('lineItemsBody');
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition group";
+
+        tr.innerHTML = `
+            <td class="p-2">
+                <input type="text" value="${desc}" placeholder="Description of service/goods" class="w-full font-medium text-slate-800 bg-transparent outline-none border-b border-transparent focus:border-blue-400">
+            </td>
+            <td class="p-2 w-20 text-center">
+                <input type="text" value="${hsn}" placeholder="HSN" class="w-full text-center font-mono text-slate-600 bg-transparent outline-none border-b border-transparent focus:border-blue-400">
+            </td>
+            <td class="p-2 w-16 text-center">
+                <input type="number" min="1" value="${qty}" oninput="recalculateInvoiceTotals()" class="item-qty w-full text-center font-bold text-slate-800 bg-transparent outline-none border-b border-transparent focus:border-blue-400">
+            </td>
+            <td class="p-2 w-28 text-right">
+                <input type="number" min="0" step="0.5" value="${rate}" oninput="recalculateInvoiceTotals()" class="item-rate w-full text-right font-mono text-slate-800 bg-transparent outline-none border-b border-transparent focus:border-blue-400">
+            </td>
+            <td class="p-2 w-28 text-right font-mono font-bold text-slate-800">
+                ₹ <span class="item-row-total">0.00</span>
+            </td>
+            <td class="p-2 w-8 text-center no-print">
+                <button onclick="removeLineItem(this)" class="text-slate-300 hover:text-red-500 transition p-1">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+        lucide.createIcons();
+        recalculateInvoiceTotals();
+    }
+
+    function removeLineItem(btn) {
+        const tbody = document.getElementById('lineItemsBody');
+        if (tbody.children.length > 1) {
+            btn.closest('tr').remove();
+            recalculateInvoiceTotals();
+        } else {
+            alert("At least one line item is required!");
+        }
+    }
+
+    function recalculateInvoiceTotals() {
+        let subtotal = 0;
+        const rows = document.querySelectorAll('#lineItemsBody tr');
+
+        rows.forEach(row => {
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+            const rowTotal = qty * rate;
+
+            row.querySelector('.item-row-total').textContent = rowTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            subtotal += rowTotal;
+        });
+
+        const gstRate = parseFloat(document.getElementById('gstRateInput').value) || 0;
+        const gstType = document.getElementById('gstTypeInput').value;
+        const gstTotalAmount = subtotal * (gstRate / 100);
+        const grandTotal = subtotal + gstTotalAmount;
+
+        document.getElementById('subtotalDisplay').textContent = subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('grandTotalDisplay').textContent = grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        // Tax Split Render
+        const taxBox = document.getElementById('gstSplitBreakdown');
+        if (gstType === 'CGST_SGST') {
+            const halfRate = (gstRate / 2).toFixed(1);
+            const halfAmount = (gstTotalAmount / 2).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            taxBox.innerHTML = `
+                <div class="flex justify-between">
+                    <span>CGST (${halfRate}%):</span>
+                    <span class="font-mono">₹ ${halfAmount}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>SGST (${halfRate}%):</span>
+                    <span class="font-mono">₹ ${halfAmount}</span>
+                </div>
+            `;
+        } else {
+            taxBox.innerHTML = `
+                <div class="flex justify-between">
+                    <span>IGST (${gstRate}%):</span>
+                    <span class="font-mono">₹ ${gstTotalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </div>
+            `;
+        }
+
+        document.getElementById('amountInWordsText').textContent = "Rupees " + convertNumberToWords(Math.round(grandTotal)) + " Only";
+    }
+
+    // Indian Currency Number to Words converter
+    function convertNumberToWords(amount) {
+        const words = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+        const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+        if (amount === 0) return "Zero";
+
+        function numToWords(n) {
+            if (n < 20) return words[n];
+            if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + words[n % 10] : "");
+            if (n < 1000) return words[Math.floor(n / 100)] + " Hundred" + (n % 100 !== 0 ? " and " + numToWords(n % 100) : "");
+            if (n < 100000) return numToWords(Math.floor(n / 1000)) + " Thousand" + (n % 1000 !== 0 ? " " + numToWords(n % 1000) : "");
+            if (n < 10000000) return numToWords(Math.floor(n / 100000)) + " Lakh" + (n % 100000 !== 0 ? " " + numToWords(n % 100000) : "");
+            return numToWords(Math.floor(n / 10000000)) + " Crore" + (n % 10000000 !== 0 ? " " + numToWords(n % 10000000) : "");
+        }
+
+        return numToWords(amount);
+    }
+
+    function saveCurrentInvoice() {
+        const invNum = document.getElementById('invNumber').value;
+        const clientName = document.getElementById('clientName').value;
+
+        if (!invNum) return alert("Please fill in Invoice Number!");
+        if (!clientName) return alert("Please fill in Client Name!");
+
+        const lineItems = [];
+        document.querySelectorAll('#lineItemsBody tr').forEach(tr => {
+            const inputs = tr.querySelectorAll('input');
+            lineItems.push({
+                desc: inputs[0].value,
+                hsn: inputs[1].value,
+                qty: inputs[2].value,
+                rate: inputs[3].value
+            });
+        });
+
+        const invoiceRecord = {
+            id: 'inv_' + Date.now(),
+            number: invNum,
+            date: document.getElementById('invDate').value,
+            dueDate: document.getElementById('invDueDate').value,
+            companyId: activeCompany.id,
+            templateStyle: currentStyle,
+            clientName: clientName,
+            clientGst: document.getElementById('clientGst').value,
+            clientAddress: document.getElementById('clientAddress').value,
+            gstRate: document.getElementById('gstRateInput').value,
+            gstType: document.getElementById('gstTypeInput').value,
+            bankDetails: document.getElementById('bankDetailsDisplay').value,
+            terms: document.getElementById('termsDisplay').value,
+            items: lineItems,
+            grandTotal: document.getElementById('grandTotalDisplay').textContent
+        };
+
+        const existingIndex = invoices.findIndex(i => i.number === invNum);
+        if (existingIndex >= 0) {
+            invoices[existingIndex] = invoiceRecord;
+        } else {
+            invoices.unshift(invoiceRecord);
+        }
+
+        localStorage.setItem('proforma_invoices_v3', JSON.stringify(invoices));
+        renderHistoryList();
+        alert(`Proforma Invoice ${invNum} saved successfully!`);
+    }
+
+    function renderHistoryList() {
+        const list = document.getElementById('historyListContainer');
+        const filter = document.getElementById('historySearchInput').value.toLowerCase();
+        
+        document.getElementById('historyCountBadge').textContent = invoices.length;
+
+        const filtered = invoices.filter(i => 
+            i.number.toLowerCase().includes(filter) || 
+            i.clientName.toLowerCase().includes(filter)
+        );
+
+        if (filtered.length === 0) {
+            list.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">No saved invoices found.</div>`;
+            return;
+        }
+
+        list.innerHTML = filtered.map(inv => `
+            <div onclick="loadInvoiceFromRecord('${inv.id}')" class="p-3 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition space-y-1">
+                <div class="flex justify-between items-center font-bold text-xs text-slate-800">
+                    <span>${inv.number}</span>
+                    <span class="text-blue-600 font-mono">₹ ${inv.grandTotal}</span>
+                </div>
+                <div class="text-[11px] text-slate-500 truncate">${inv.clientName}</div>
+                <div class="flex justify-between text-[10px] text-slate-400">
+                    <span>Date: ${inv.date}</span>
+                    <span class="uppercase tracking-wider font-semibold">${inv.templateStyle}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function loadInvoiceFromRecord(id) {
+        const inv = invoices.find(i => i.id === id);
+        if (!inv) return;
+
+        document.getElementById('invNumber').value = inv.number;
+        document.getElementById('invDate').value = inv.date;
+        document.getElementById('invDueDate').value = inv.dueDate;
+        document.getElementById('clientName').value = inv.clientName;
+        document.getElementById('clientGst').value = inv.clientGst;
+        document.getElementById('clientAddress').value = inv.clientAddress;
+        document.getElementById('gstRateInput').value = inv.gstRate;
+        document.getElementById('gstTypeInput').value = inv.gstType;
+        document.getElementById('bankDetailsDisplay').value = inv.bankDetails;
+        document.getElementById('termsDisplay').value = inv.terms;
+
+        switchCompanyProfile(inv.companyId || companies[0].id);
+        changeTemplateStyle(inv.templateStyle || "modern");
+
+        // Clear and reload line items
+        const tbody = document.getElementById('lineItemsBody');
+        tbody.innerHTML = '';
+        inv.items.forEach(item => addNewLineItem(item.desc, item.hsn, item.qty, item.rate));
+
+        toggleHistoryDrawer();
+    }
+
+    function resetInvoiceForm() {
+        if (confirm("Reset current form? Unsaved changes will be cleared.")) {
+            document.getElementById('invNumber').value = 'PI-2026-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientGst').value = '';
+            document.getElementById('clientAddress').value = '';
+            document.getElementById('lineItemsBody').innerHTML = '';
+            initDates();
+            addNewLineItem('Web Development Services', '998313', 1, 25000);
+            addNewLineItem('Cloud Hosting Setup', '998315', 1, 5000);
+        }
+    }
+
+    // Modal & Drawer Toggles
+    function toggleHistoryDrawer() {
+        const d = document.getElementById('historyDrawer');
+        d.classList.toggle('hidden');
+    }
+
+    function openCompanyModal() { document.getElementById('companyModal').classList.remove('hidden'); }
+    function closeCompanyModal() { document.getElementById('companyModal').classList.add('hidden'); }
+
+    function handleCompanySubmit(e) {
+        e.preventDefault();
+        const newComp = {
+            id: 'comp_' + Date.now(),
+            name: document.getElementById('mCompName').value,
+            gst: document.getElementById('mCompGst').value,
+            template: document.getElementById('mCompTemplate').value,
+            address: document.getElementById('mCompAddress').value,
+            bank: document.getElementById('mCompBank').value
+        };
+
+        companies.push(newComp);
+        localStorage.setItem('proforma_companies_v3', JSON.stringify(companies));
+        renderCompanySelector();
+        switchCompanyProfile(newComp.id);
+        closeCompanyModal();
+    }
+
+    function triggerPrint() {
+        window.print();
+    }
+
+    // Seed default line items on first boot
+    addNewLineItem('IT Infrastructure Consulting', '998313', 1, 45000);
+    addNewLineItem('Software License Renewal', '997331', 2, 12500);
+</script>
+</body>
+</html>
+```
+
+```
