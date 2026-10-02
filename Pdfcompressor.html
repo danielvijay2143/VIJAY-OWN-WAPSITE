@@ -1,1 +1,432 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Size Compressor & Converter</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- pdf-lib & PDF.js CDN Libraries -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0b0f19 0%, #1e1b4b 25%, #311042 50%, #064e3b 75%, #0b0f19 100%);
+      background-size: 400% 400%;
+      animation: gradientBG 16s ease infinite;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Custom range slider thumb styling */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.9);
+      transition: all 0.2s ease-in-out;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      background: #34d399;
+    }
+
+    /* Remove browser default arrows on number inputs */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    .glow-pulse {
+      animation: pulseGlow 2s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+      100% { shadow: 0 0 35px rgba(16, 185, 129, 0.8); }
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-left-color: #10b981;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 font-sans antialiased p-3 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-screen">
+
+  <header class="text-center max-w-4xl w-full mb-6">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold mb-3 shadow-lg backdrop-blur-md">
+      <i class="fa-solid fa-file-pdf text-rose-400"></i> Modern PDF Size Reducer & Optimizer
+    </div>
+    <h1 class="text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-amber-300 tracking-tight leading-tight mb-2">
+      PDF Size Compressor
+    </h1>
+    <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+      Upload your PDF file, set custom compression via manual percentage entry or slider, preview output pages, and download instantly.
+    </p>
+  </header>
+
+  <main class="w-full max-w-4xl glass-panel rounded-3xl p-5 sm:p-8 shadow-2xl border border-white/10 relative overflow-hidden">
+    
+    <!-- Decorative Ambient Glows -->
+    <div class="absolute -top-24 -left-24 w-60 h-60 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-60 h-60 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Step 1: Upload Dropzone -->
+    <div id="uploadSection" class="w-full">
+      <label class="block text-xs font-bold uppercase tracking-wider text-emerald-300 mb-2 flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">1</span>
+        Upload PDF File
+      </label>
+
+      <div id="dropZone" class="relative group h-52 border-2 border-dashed border-slate-600 hover:border-emerald-400 bg-slate-900/50 hover:bg-slate-900/80 rounded-2xl cursor-pointer transition-all flex flex-col items-center justify-center p-6 text-center">
+        <input type="file" id="pdfFileInput" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+        
+        <div class="w-16 h-16 rounded-2xl bg-rose-500/10 group-hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 flex items-center justify-center text-3xl mb-3 transition-transform group-hover:scale-110 shadow-lg">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <span class="text-base font-bold text-slate-200 group-hover:text-emerald-300 transition-colors">
+          Click or Drag & Drop PDF File Here
+        </span>
+        <span class="text-xs text-slate-400 mt-1">Supports multi-page PDFs (Processed 100% locally in browser)</span>
+      </div>
+    </div>
+
+    <div id="editorSection" class="hidden flex-col gap-6 mt-2">
+      
+      <!-- Loaded PDF Summary Banner -->
+      <div class="glass-card p-4 rounded-2xl border border-slate-700/60 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-file-pdf"></i>
+          </div>
+          <div>
+            <div id="fileNameText" class="text-sm font-bold text-white truncate max-w-xs sm:max-w-md">document.pdf</div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+              <span id="pageCountText"><i class="fa-solid fa-layer-group text-cyan-400"></i> -- Pages</span>
+              <span>•</span>
+              <span id="originalSizeText" class="font-mono text-amber-300 font-semibold">Original: 0 KB</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="changeFileBtn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer">
+          <i class="fa-solid fa-rotate-left"></i> Change File
+        </button>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs">2</span>
+            Set Compression Percentage
+          </span>
+          <span class="text-[11px] text-slate-400 font-normal">Higher % = Smaller file size</span>
+        </label>
+
+        <!-- Quick Percentage Preset Buttons -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+          <button data-percent="25" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-emerald-400 text-center transition-all active:scale-95">
+            <div class="text-xs text-slate-400 font-medium">Low</div>
+            <div class="text-base font-extrabold text-white">25%</div>
+          </button>
+          <button data-percent="50" class="preset-btn px-4 py-3 rounded-xl glass-card border-2 border-emerald-500 bg-emerald-500/10 text-center transition-all active:scale-95">
+            <div class="text-xs text-emerald-300 font-medium">Balanced</div>
+            <div class="text-base font-extrabold text-emerald-300">50%</div>
+          </button>
+          <button data-percent="75" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-pink-400 text-center transition-all active:scale-95">
+            <div class="text-xs text-slate-400 font-medium">Strong</div>
+            <div class="text-base font-extrabold text-white">75%</div>
+          </button>
+          <button data-percent="90" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-purple-400 text-center transition-all active:scale-95">
+            <div class="text-xs text-slate-400 font-medium">Extreme</div>
+            <div class="text-base font-extrabold text-white">90%</div>
+          </button>
+        </div>
+
+        <!-- Slider + Manual Percentage Number Entry Box -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-700/60 flex flex-col gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <label for="compressionSlider" class="text-xs font-bold text-slate-300 flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-emerald-400"></i> Adjust Target Compression Percentage:
+            </label>
+
+            <!-- Manual Entry Percentage Input Box -->
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <span class="text-xs text-slate-400 font-medium">Manual Entry:</span>
+              <div class="relative flex items-center">
+                <input 
+                  type="number" 
+                  id="percentInputBox" 
+                  min="1" 
+                  max="99" 
+                  value="50" 
+                  class="w-20 bg-slate-900 border-2 border-emerald-500/80 rounded-xl px-3 py-1.5 text-center text-emerald-300 font-extrabold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all font-mono"
+                >
+                <span class="absolute right-2.5 text-xs text-emerald-400 font-bold">%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Range Slider -->
+          <input type="range" id="compressionSlider" min="1" max="95" step="1" value="50" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+          
+          <div class="flex justify-between text-[10px] text-slate-400 px-1 font-semibold">
+            <span>1% (Highest Quality)</span>
+            <span>50% (Recommended)</span>
+            <span>95% (Maximum Compression)</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="comparisonBox" class="glass-card p-5 rounded-2xl border border-emerald-500/30 bg-slate-900/60 flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full md:w-auto">
+          <div>
+            <div class="text-[11px] text-slate-400 font-semibold uppercase">Original Size</div>
+            <div id="statOriginalSize" class="text-base font-extrabold text-amber-300 font-mono mt-0.5">-- KB</div>
+          </div>
+          <div>
+            <div class="text-[11px] text-slate-400 font-semibold uppercase">Final Output Size</div>
+            <div id="statCompressedSize" class="text-lg font-extrabold text-emerald-300 font-mono mt-0.5">-- KB</div>
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <div class="text-[11px] text-slate-400 font-semibold uppercase">Space Saved</div>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span id="statSpaceSaved" class="text-base font-extrabold text-cyan-300 font-mono">-- KB</span>
+              <span id="savedPercentBadge" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">
+                --% Saved
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button id="compressProcessBtn" class="w-full md:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-sm tracking-wide flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 cursor-pointer whitespace-nowrap">
+          <i class="fa-solid fa-bolt"></i> Compress PDF Now
+        </button>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-eye text-cyan-400"></i> Compressed PDF Page Preview
+          </label>
+          <div id="pageNavControls" class="hidden items-center gap-2">
+            <button id="prevPageBtn" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="previewPageNumText" class="text-[11px] text-slate-300 font-mono font-bold">Page 1 / 1</span>
+            <button id="nextPageBtn" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-slate-700/60 flex items-center justify-center bg-slate-950/70 min-h-[220px]">
+          <canvas id="previewCanvas" class="max-w-full max-h-[320px] rounded-lg shadow-xl border border-slate-800 hidden"></canvas>
+          <div id="previewPlaceholder" class="text-center text-slate-500 text-xs flex flex-col items-center gap-2 py-6">
+            <i class="fa-solid fa-image text-3xl text-slate-600"></i>
+            Click "Compress PDF Now" to render optimized page preview
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center pt-2">
+        <button id="downloadPdfBtn" disabled class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-extrabold text-base tracking-wide flex items-center justify-center gap-3 shadow-2xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed glow-pulse cursor-pointer">
+          <i class="fa-solid fa-download text-xl"></i>
+          <span>Download Compressed PDF</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="mt-8 text-center text-xs text-slate-400">
+    🔒 100% Client-Side Privacy. Documents are converted in-memory and never uploaded anywhere.
+  </footer>
+
+  <script>
+    // Global Application State
+    let pdfFile = null;
+    let originalSizeBytes = 0;
+    let pdfDoc = null;
+    let processedPdfBytes = null;
+    let estimatedCompressedBytes = 0;
+    let currentPreviewPage = 1;
+
+    // DOM References
+    const dropZone = document.getElementById('dropZone');
+    const pdfFileInput = document.getElementById('pdfFileInput');
+    const uploadSection = document.getElementById('uploadSection');
+    const editorSection = document.getElementById('editorSection');
+
+    const fileNameText = document.getElementById('fileNameText');
+    const pageCountText = document.getElementById('pageCountText');
+    const originalSizeText = document.getElementById('originalSizeText');
+    const changeFileBtn = document.getElementById('changeFileBtn');
+
+    const compressionSlider = document.getElementById('compressionSlider');
+    const percentInputBox = document.getElementById('percentInputBox');
+    const presetBtns = document.querySelectorAll('.preset-btn');
+
+    const statOriginalSize = document.getElementById('statOriginalSize');
+    const statCompressedSize = document.getElementById('statCompressedSize');
+    const statSpaceSaved = document.getElementById('statSpaceSaved');
+    const savedPercentBadge = document.getElementById('savedPercentBadge');
+    const compressProcessBtn = document.getElementById('compressProcessBtn');
+
+    const previewCanvas = document.getElementById('previewCanvas');
+    const previewPlaceholder = document.getElementById('previewPlaceholder');
+    const pageNavControls = document.getElementById('pageNavControls');
+    const previewPageNumText = document.getElementById('previewPageNumText');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+
+    // Utility: Bytes Formatter
+    function formatBytes(bytes) {
+      if (!bytes || bytes <= 0) return '0 KB';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Drag & Drop Handlers
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-emerald-400', 'bg-slate-900/80');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-emerald-400', 'bg-slate-900/80');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files[0] && files[0].type === 'application/pdf') {
+        handlePdfSelection(files[0]);
+      } else {
+        alert('Please select a valid PDF file.');
+      }
+    });
+
+    pdfFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handlePdfSelection(e.target.files[0]);
+      }
+    });
+
+    changeFileBtn.addEventListener('click', () => {
+      pdfFile = null;
+      processedPdfBytes = null;
+      pdfFileInput.value = '';
+      uploadSection.classList.remove('hidden');
+      editorSection.classList.add('hidden');
+      editorSection.classList.remove('flex');
+    });
+
+    // Handle Uploaded PDF
+    async function handlePdfSelection(file) {
+      pdfFile = file;
+      originalSizeBytes = file.size;
+
+      fileNameText.textContent = file.name;
+      originalSizeText.textContent = `Original: ${formatBytes(originalSizeBytes)}`;
+      statOriginalSize.textContent = formatBytes(originalSizeBytes);
+
+      uploadSection.classList.add('hidden');
+      editorSection.classList.remove('hidden');
+      editorSection.classList.add('flex');
+
+      // Load PDF metadata using PDF.js
+      const arrayBuffer = await file.arrayBuffer();
+      pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      pageCountText.innerHTML = `<i class="fa-solid fa-layer-group text-cyan-400"></i> ${pdfDoc.numPages} ${pdfDoc.numPages === 1 ? 'Page' : 'Pages'}`;
+
+      // Reset Output States
+      downloadPdfBtn.disabled = true;
+      previewCanvas.classList.add('hidden');
+      previewPlaceholder.classList.remove('hidden');
+      pageNavControls.classList.add('hidden');
+      currentPreviewPage = 1;
+
+      syncPercentageValue(50, 'preset');
+      processPDF();
+    }
+
+    function syncPercentageValue(value, source) {
+      let val = parseInt(value);
+      if (isNaN(val)) val = 50;
+      if (val < 1) val = 1;
+      if (val > 99) val = 99;
+
+      if (source !== 'slider') compressionSlider.value = val;
+      if (source !== 'inputBox') percentInputBox.value = val;
+
+      // Update preset buttons styling
+      presetBtns.forEach(btn => {
+        const
