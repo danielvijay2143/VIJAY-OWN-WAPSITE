@@ -155,13 +155,13 @@
         
         <!-- Navigation Tabs -->
         <div class="flex flex-wrap p-1.5 gap-1.5 bg-slate-950/60 border border-slate-800 rounded-xl transition-colors duration-300">
-            <button onclick="switchTab('increase')" id="tab-increase" class="tab-btn active flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all">
-                <i class="fa-solid fa-arrow-up-right-and-arrow-down-left-from-center text-brand-500"></i>
-                <span>Increase Size (KB)</span>
-            </button>
-            <button onclick="switchTab('reduce')" id="tab-reduce" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-slate-200">
+            <button onclick="switchTab('reduce')" id="tab-reduce" class="tab-btn active flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all">
                 <i class="fa-solid fa-compress text-brand-500"></i>
                 <span>Reduce Size (KB)</span>
+            </button>
+            <button onclick="switchTab('increase')" id="tab-increase" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-slate-200">
+                <i class="fa-solid fa-arrow-up-right-and-arrow-down-left-from-center text-brand-500"></i>
+                <span>Increase Size (KB)</span>
             </button>
             <button onclick="switchTab('merge')" id="tab-merge" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-slate-200">
                 <i class="fa-solid fa-layer-group text-brand-500"></i>
@@ -169,8 +169,96 @@
             </button>
         </div>
 
-        <!-- TOOL 1: INCREASE SIZE (KB) -->
-        <section id="tool-increase" class="tool-content space-y-6">
+        <!-- TOOL 1: REDUCE SIZE (KB) -->
+        <section id="tool-reduce" class="tool-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Control Panel Left -->
+                <div class="lg:col-span-5 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 space-y-5 transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3">
+                        <h2 class="text-base font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-compress text-brand-500"></i> Target KB Compressor
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Smart iterative compression to hit exact target KB constraints.</p>
+                    </div>
+
+                    <!-- Dropzone -->
+                    <div id="dropzone-red" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-900/40">
+                        <input type="file" id="file-red" accept="image/*" class="hidden">
+                        <i class="fa-solid fa-file-arrow-down text-3xl text-brand-500 mb-2"></i>
+                        <p class="text-sm font-medium text-slate-200">Click or Drag & Drop Image</p>
+                        <p class="text-xs text-slate-400 mt-1">PNG, JPG, WEBP formats supported</p>
+                    </div>
+
+                    <!-- Original Info Card -->
+                    <div id="info-red-orig" class="hidden bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 text-xs space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Current File Size:</span>
+                            <span id="red-orig-size" class="font-semibold text-amber-500">0 KB</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Original Dimensions:</span>
+                            <span id="red-orig-dim" class="font-mono text-slate-300">0 x 0 px</span>
+                        </div>
+                    </div>
+
+                    <!-- Target KB Input -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-medium text-slate-300">Target Maximum KB:</label>
+                            <span id="red-kb-display" class="text-xs text-brand-500 font-mono font-semibold">100 KB</span>
+                        </div>
+                        <input type="number" id="red-target-kb" min="1" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-brand-500 font-mono">
+                    </div>
+
+                    <!-- Output Format Choice -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-300">Output Format Strategy:</label>
+                        <select id="red-format" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-xs focus:outline-none focus:border-brand-500">
+                            <option value="image/jpeg">JPEG (High Compressibility)</option>
+                            <option value="image/webp">WEBP (Modern Efficient Format)</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="btn-process-red" disabled onclick="processReduceSize()" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:hover:bg-brand-600 text-white rounded-xl font-medium text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Compress to Target KB</span>
+                    </button>
+                </div>
+
+                <!-- Live Compare Right -->
+                <div class="lg:col-span-7 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between min-h-[380px] transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3 flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-slate-200">Side-by-Side Compression Result</h3>
+                        <span id="badge-red-reduction" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-500 hidden">0% Saved</span>
+                    </div>
+
+                    <!-- Comparison Canvas/Image -->
+                    <div class="flex-1 my-4 checkerboard-bg rounded-xl border border-slate-700/50 flex items-center justify-center overflow-hidden relative p-4 min-h-[250px]">
+                        <img id="img-red-preview" class="max-h-[320px] max-w-full object-contain rounded shadow-md hidden" alt="Compressed Preview">
+                        <div id="placeholder-red" class="text-center text-slate-500 text-xs">
+                            <i class="fa-solid fa-minimize text-4xl mb-2 block"></i>
+                            Select an image and specify maximum target size
+                        </div>
+                    </div>
+
+                    <!-- Download Row -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
+                        <div>
+                            <div class="text-xs text-slate-400">Achieved File Size</div>
+                            <div id="red-result-size" class="text-lg font-bold text-emerald-500 font-mono">-- KB</div>
+                        </div>
+                        <button id="btn-download-red" disabled onclick="downloadRedResult()" class="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Download Compressed Image</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL 2: INCREASE SIZE (KB) -->
+        <section id="tool-increase" class="tool-content space-y-6 hidden">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Control Panel Left -->
                 <div class="lg:col-span-5 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 space-y-5 transition-colors duration-300">
@@ -252,94 +340,6 @@
                         <button id="btn-download-inc" disabled onclick="downloadIncResult()" class="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
                             <i class="fa-solid fa-download"></i>
                             <span>Download Image</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TOOL 2: REDUCE SIZE (KB) -->
-        <section id="tool-reduce" class="tool-content space-y-6 hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Control Panel Left -->
-                <div class="lg:col-span-5 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 space-y-5 transition-colors duration-300">
-                    <div class="border-b border-slate-700/60 pb-3">
-                        <h2 class="text-base font-semibold flex items-center gap-2">
-                            <i class="fa-solid fa-compress text-brand-500"></i> Target KB Compressor
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Smart iterative compression to hit exact target KB constraints.</p>
-                    </div>
-
-                    <!-- Dropzone -->
-                    <div id="dropzone-red" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-900/40">
-                        <input type="file" id="file-red" accept="image/*" class="hidden">
-                        <i class="fa-solid fa-file-arrow-down text-3xl text-brand-500 mb-2"></i>
-                        <p class="text-sm font-medium text-slate-200">Click or Drag & Drop Image</p>
-                        <p class="text-xs text-slate-400 mt-1">PNG, JPG, WEBP formats supported</p>
-                    </div>
-
-                    <!-- Original Info Card -->
-                    <div id="info-red-orig" class="hidden bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 text-xs space-y-1">
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Current File Size:</span>
-                            <span id="red-orig-size" class="font-semibold text-amber-500">0 KB</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Original Dimensions:</span>
-                            <span id="red-orig-dim" class="font-mono text-slate-300">0 x 0 px</span>
-                        </div>
-                    </div>
-
-                    <!-- Target KB Input -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-medium text-slate-300">Target Maximum KB:</label>
-                            <span id="red-kb-display" class="text-xs text-brand-500 font-mono font-semibold">100 KB</span>
-                        </div>
-                        <input type="number" id="red-target-kb" min="1" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-brand-500 font-mono">
-                    </div>
-
-                    <!-- Output Format Choice -->
-                    <div class="space-y-2">
-                        <label class="block text-xs font-medium text-slate-300">Output Format Strategy:</label>
-                        <select id="red-format" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-xs focus:outline-none focus:border-brand-500">
-                            <option value="image/jpeg">JPEG (High Compressibility)</option>
-                            <option value="image/webp">WEBP (Modern Efficient Format)</option>
-                        </select>
-                    </div>
-
-                    <!-- Action Button -->
-                    <button id="btn-process-red" disabled onclick="processReduceSize()" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:hover:bg-brand-600 text-white rounded-xl font-medium text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span>Compress to Target KB</span>
-                    </button>
-                </div>
-
-                <!-- Live Compare Right -->
-                <div class="lg:col-span-7 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between min-h-[380px] transition-colors duration-300">
-                    <div class="border-b border-slate-700/60 pb-3 flex justify-between items-center">
-                        <h3 class="text-sm font-semibold text-slate-200">Side-by-Side Compression Result</h3>
-                        <span id="badge-red-reduction" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-500 hidden">0% Saved</span>
-                    </div>
-
-                    <!-- Comparison Canvas/Image -->
-                    <div class="flex-1 my-4 checkerboard-bg rounded-xl border border-slate-700/50 flex items-center justify-center overflow-hidden relative p-4 min-h-[250px]">
-                        <img id="img-red-preview" class="max-h-[320px] max-w-full object-contain rounded shadow-md hidden" alt="Compressed Preview">
-                        <div id="placeholder-red" class="text-center text-slate-500 text-xs">
-                            <i class="fa-solid fa-minimize text-4xl mb-2 block"></i>
-                            Select an image and specify maximum target size
-                        </div>
-                    </div>
-
-                    <!-- Download Row -->
-                    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
-                        <div>
-                            <div class="text-xs text-slate-400">Achieved File Size</div>
-                            <div id="red-result-size" class="text-lg font-bold text-emerald-500 font-mono">-- KB</div>
-                        </div>
-                        <button id="btn-download-red" disabled onclick="downloadRedResult()" class="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-download"></i>
-                            <span>Download Compressed Image</span>
                         </button>
                     </div>
                 </div>
