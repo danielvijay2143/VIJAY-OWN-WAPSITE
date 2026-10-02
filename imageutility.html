@@ -396,6 +396,26 @@
                         </div>
                     </div>
 
+                    <!-- Manual Target Size KB & Format for Merge -->
+                    <div class="space-y-3 pt-2 border-t border-slate-700/60">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-medium text-slate-300">Target Max KB (Optional):</label>
+                                <span id="merge-kb-display" class="text-xs text-brand-500 font-mono font-semibold">Unlimited</span>
+                            </div>
+                            <input type="number" id="merge-target-kb" min="1" placeholder="e.g. 200 (Leave empty for uncompressed)" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-xs focus:outline-none focus:border-brand-500 font-mono">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-[11px] text-slate-400">Export Format</label>
+                            <select id="merge-export-format" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+                                <option value="image/jpeg">JPEG (Supports Target KB)</option>
+                                <option value="image/webp">WEBP (Supports Target KB)</option>
+                                <option value="image/png">PNG (Lossless)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Customization Options -->
                     <div class="space-y-3 pt-2 border-t border-slate-700/60">
                         <div class="grid grid-cols-2 gap-3">
@@ -437,13 +457,6 @@
                             <h3 class="text-sm font-semibold text-slate-200">Merged Canvas Workspace</h3>
                             <span id="free-help" class="text-[11px] text-amber-500 hidden"><i class="fa-solid fa-circle-info"></i> Drag/Resize images directly on canvas</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <select id="merge-export-format" class="bg-slate-900 border border-slate-700 rounded text-xs px-2 py-1">
-                                <option value="image/png">PNG</option>
-                                <option value="image/jpeg">JPEG</option>
-                                <option value="image/webp">WEBP</option>
-                            </select>
-                        </div>
                     </div>
 
                     <!-- Canvas Workspace -->
@@ -457,12 +470,13 @@
 
                     <!-- Controls & Export -->
                     <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
-                        <div class="text-xs text-slate-400">
-                            Canvas Resolution: <span id="merge-dimensions" class="font-mono text-slate-200">0 x 0 px</span>
+                        <div>
+                            <div class="text-xs text-slate-400">Canvas Resolution: <span id="merge-dimensions" class="font-mono text-slate-200">0 x 0 px</span></div>
+                            <div class="text-xs text-slate-400">Merged Output Size: <span id="merge-result-size" class="font-mono font-bold text-emerald-500">-- KB</span></div>
                         </div>
                         <button id="btn-download-merge" disabled onclick="downloadMergeResult()" class="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
                             <i class="fa-solid fa-download"></i>
-                            <span>Export & Download Merged Image</span>
+                            <span>Merge & Download (Target KB)</span>
                         </button>
                     </div>
                 </div>
@@ -754,6 +768,11 @@
         dropzoneMerge.addEventListener('click', () => filesMerge.click());
         filesMerge.addEventListener('change', (e) => handleMergeFiles(e.target.files));
 
+        document.getElementById('merge-target-kb').addEventListener('input', (e) => {
+            const val = e.target.value;
+            document.getElementById('merge-kb-display').innerText = val ? `${val} KB` : 'Unlimited';
+        });
+
         function handleMergeFiles(files) {
             Array.from(files).forEach(file => {
                 if (!file.type.startsWith('image/')) return;
@@ -870,6 +889,7 @@
                 canvasMerge.width = 0;
                 canvasMerge.height = 0;
                 document.getElementById('merge-dimensions').innerText = '0 x 0 px';
+                document.getElementById('merge-result-size').innerText = '-- KB';
                 return;
             }
 
@@ -958,6 +978,11 @@
             }
 
             document.getElementById('merge-dimensions').innerText = `${canvasMerge.width} x ${canvasMerge.height} px`;
+            
+            // Estimate output size preview
+            canvasMerge.toBlob((blob) => {
+                if (blob) document.getElementById('merge-result-size').innerText = formatBytes(blob.size);
+            }, document.getElementById('merge-export-format').value);
         }
 
         function drawRoundedImage(ctx, img, x, y, width, height, radius) {
@@ -1014,15 +1039,55 @@
             mergeState.isDragging = false;
         });
 
-        function downloadMergeResult() {
+        async function downloadMergeResult() {
             if (mergeState.images.length === 0) return;
-            const format = document.getElementById('merge-export-format').value;
-            const ext = format === 'image/jpeg' ? 'jpg' : format === 'image/webp' ? 'webp' : 'png';
             
+            const format = document.getElementById('merge-export-format').value;
+            const targetKBInput = parseFloat(document.getElementById('merge-target-kb').value);
+            const ext = format === 'image/jpeg' ? 'jpg' : format === 'image/webp' ? 'webp' : 'png';
+
+            let blob = null;
+
+            if (targetKBInput && targetKBInput > 0 && format !== 'image/png') {
+                const targetBytes = targetKBInput * 1024;
+                let scale = 1.0;
+                let quality = 0.95;
+
+                // Create off-screen canvas for iterative sizing
+                let tempCanvas = document.createElement('canvas');
+                let tempCtx = tempCanvas.getContext('2d');
+
+                for (let attempt = 0; attempt < 12; attempt++) {
+                    tempCanvas.width = Math.round(canvasMerge.width * scale);
+                    tempCanvas.height = Math.round(canvasMerge.height * scale);
+
+                    tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+                    tempCtx.drawImage(canvasMerge, 0, 0, tempCanvas.width, tempCanvas.height);
+
+                    blob = await new Promise(resolve => tempCanvas.toBlob(resolve, format, quality));
+
+                    if (blob.size <= targetBytes) {
+                        break;
+                    }
+
+                    if (quality > 0.3) {
+                        quality -= 0.15;
+                    } else {
+                        scale *= 0.85;
+                    }
+                }
+            } else {
+                blob = await new Promise(resolve => canvasMerge.toBlob(resolve, format, 0.95));
+            }
+
+            if (!blob) return;
+
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.download = `merged_image.${ext}`;
-            a.href = canvasMerge.toDataURL(format, 0.95);
+            a.href = url;
             a.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
