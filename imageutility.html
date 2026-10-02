@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Utility Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .checkerboard-bg {
+            background-color: #1e293b;
+            background-image: linear-gradient(45deg, #0f172a 25%, transparent 25%), 
+                              linear-gradient(-45deg, #0f172a 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #0f172a 75%), 
+                              linear-gradient(-45deg, transparent 75%, #0f172a 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        .light .checkerboard-bg {
+            background-color: #f1f5f9;
+            background-image: linear-gradient(45deg, #cbd5e1 25%, transparent 25%), 
+                              linear-gradient(-45deg, #cbd5e1 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #cbd5e1 75%), 
+                              linear-gradient(-45deg, transparent 75%, #cbd5e1 75%);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Light Mode UI Specific Overrides */
+        html.light body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        html.light header {
+            background-color: rgba(255, 255, 255, 0.85);
+            border-color: #e2e8f0;
+        }
+        html.light .bg-slate-900\/60,
+        html.light .bg-slate-900\/40,
+        html.light .bg-slate-900 {
+            background-color: #ffffff;
+            color: #0f172a;
+        }
+        html.light .bg-slate-800\/60,
+        html.light .bg-slate-800 {
+            background-color: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #0f172a;
+        }
+        html.light .bg-slate-950\/80,
+        html.light .bg-slate-950\/60,
+        html.light .bg-slate-950 {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+        html.light .border-slate-800,
+        html.light .border-slate-700,
+        html.light .border-slate-700\/60,
+        html.light .border-slate-700\/50 {
+            border-color: #cbd5e1;
+        }
+        html.light .text-slate-400,
+        html.light .text-slate-300 {
+            color: #475569;
+        }
+        html.light .text-slate-200,
+        html.light .text-slate-100 {
+            color: #0f172a;
+        }
+        html.light input[type="number"],
+        html.light select {
+            background-color: #ffffff;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Header Navbar -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">Image Utility Suite</h1>
+                    <p class="text-xs text-slate-400">100% Client-Side Private Processing</p>
+                </div>
+            </div>
+
+            <!-- Right Header Utilities with Prominent Toggle Switch -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-1 text-xs text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Secure & Local</span>
+                </div>
+
+                <!-- Dark / Light Theme Toggle Switch -->
+                <button id="themeToggle" class="relative inline-flex items-center h-9 rounded-full w-16 p-1 bg-slate-800 dark:bg-slate-800 border border-slate-700 dark:border-slate-700 shadow-inner transition-colors duration-300 focus:outline-none" title="Toggle Light/Dark Theme">
+                    <span class="sr-only">Toggle Theme</span>
+                    <!-- Slider Thumb -->
+                    <span id="themeThumb" class="w-7 h-7 rounded-full bg-white dark:bg-slate-900 shadow-md transform transition-transform duration-300 flex items-center justify-center text-xs translate-x-0 dark:translate-x-7">
+                        <i class="fa-solid fa-sun text-amber-500 dark:hidden"></i>
+                        <i class="fa-solid fa-moon text-indigo-400 hidden dark:block"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Tool Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap p-1.5 gap-1.5 bg-slate-950/60 border border-slate-800 rounded-xl transition-colors duration-300">
+            <button onclick="switchTab('increase')" id="tab-increase" class="tab-btn active flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all">
+                <i class="fa-solid fa-arrow-up-right-and-arrow-down-left-from-center text-brand-500"></i>
+                <span>Increase Size (KB)</span>
+            </button>
+            <button onclick="switchTab('reduce')" id="tab-reduce" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-slate-200">
+                <i class="fa-solid fa-compress text-brand-500"></i>
+                <span>Reduce Size (KB)</span>
+            </button>
+            <button onclick="switchTab('merge')" id="tab-merge" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-slate-200">
+                <i class="fa-solid fa-layer-group text-brand-500"></i>
+                <span>Merge Images</span>
+            </button>
+        </div>
+
+        <!-- TOOL 1: INCREASE SIZE (KB) -->
+        <section id="tool-increase" class="tool-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Control Panel Left -->
+                <div class="lg:col-span-5 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 space-y-5 transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3">
+                        <h2 class="text-base font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-brand-500"></i> Target KB Inflator Settings
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Increase photo file size to meet specific application requirements without visual loss.</p>
+                    </div>
+
+                    <!-- Dropzone -->
+                    <div id="dropzone-inc" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-900/40 relative">
+                        <input type="file" id="file-inc" accept="image/*" class="hidden">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-brand-500 mb-2"></i>
+                        <p class="text-sm font-medium text-slate-200">Click or Drag & Drop Image</p>
+                        <p class="text-xs text-slate-400 mt-1">PNG, JPG, WEBP formats supported</p>
+                    </div>
+
+                    <!-- Original Info Card -->
+                    <div id="info-inc-orig" class="hidden bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 text-xs space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Original Size:</span>
+                            <span id="inc-orig-size" class="font-semibold text-emerald-500">0 KB</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Dimensions:</span>
+                            <span id="inc-orig-dim" class="font-mono text-slate-300">0 x 0 px</span>
+                        </div>
+                    </div>
+
+                    <!-- Target Size Input -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-300">Target File Size (KB):</label>
+                        <div class="relative">
+                            <input type="number" id="inc-target-kb" min="1" placeholder="e.g. 500" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-brand-500 font-mono">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-500">KB</span>
+                        </div>
+                    </div>
+
+                    <!-- Inflation Strategy -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-300">Padding Strategy:</label>
+                        <select id="inc-strategy" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-xs focus:outline-none focus:border-brand-500">
+                            <option value="smart">Smart Canvas + Metadata Buffer (Preserves Visuals)</option>
+                            <option value="canvas">Resolution Upscale Buffer</option>
+                            <option value="png">Lossless High Precision Data Matrix</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="btn-process-inc" disabled onclick="processIncreaseSize()" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:hover:bg-brand-600 text-white rounded-xl font-medium text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrows-maximize"></i>
+                        <span>Increase File Size</span>
+                    </button>
+                </div>
+
+                <!-- Preview Panel Right -->
+                <div class="lg:col-span-7 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between min-h-[380px] transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3 flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-slate-200">Live Result Preview</h3>
+                        <span id="badge-inc-status" class="text-xs px-2.5 py-1 rounded-full bg-slate-700/60 text-slate-300">Awaiting Image</span>
+                    </div>
+
+                    <!-- Image Display Box -->
+                    <div class="flex-1 my-4 checkerboard-bg rounded-xl border border-slate-700/50 flex items-center justify-center overflow-hidden relative p-4 min-h-[250px]">
+                        <img id="img-inc-preview" class="max-h-[320px] max-w-full object-contain rounded shadow-md hidden" alt="Preview">
+                        <div id="placeholder-inc" class="text-center text-slate-500 text-xs">
+                            <i class="fa-regular fa-image text-4xl mb-2 block"></i>
+                            Upload an image and set target size
+                        </div>
+                    </div>
+
+                    <!-- Processed Stats & Download -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
+                        <div>
+                            <div class="text-xs text-slate-400">Processed Output Size</div>
+                            <div id="inc-result-size" class="text-lg font-bold text-brand-500 font-mono">-- KB</div>
+                        </div>
+                        <button id="btn-download-inc" disabled onclick="downloadIncResult()" class="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Download Image</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL 2: REDUCE SIZE (KB) -->
+        <section id="tool-reduce" class="tool-content space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Control Panel Left -->
+                <div class="lg:col-span-5 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 space-y-5 transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3">
+                        <h2 class="text-base font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-compress text-brand-500"></i> Target KB Compressor
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Smart iterative compression to hit exact target KB constraints.</p>
+                    </div>
+
+                    <!-- Dropzone -->
+                    <div id="dropzone-red" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-900/40">
+                        <input type="file" id="file-red" accept="image/*" class="hidden">
+                        <i class="fa-solid fa-file-arrow-down text-3xl text-brand-500 mb-2"></i>
+                        <p class="text-sm font-medium text-slate-200">Click or Drag & Drop Image</p>
+                        <p class="text-xs text-slate-400 mt-1">PNG, JPG, WEBP formats supported</p>
+                    </div>
+
+                    <!-- Original Info Card -->
+                    <div id="info-red-orig" class="hidden bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 text-xs space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Current File Size:</span>
+                            <span id="red-orig-size" class="font-semibold text-amber-500">0 KB</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Original Dimensions:</span>
+                            <span id="red-orig-dim" class="font-mono text-slate-300">0 x 0 px</span>
+                        </div>
+                    </div>
+
+                    <!-- Target KB Input -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-medium text-slate-300">Target Maximum KB:</label>
+                            <span id="red-kb-display" class="text-xs text-brand-500 font-mono font-semibold">100 KB</span>
+                        </div>
+                        <input type="number" id="red-target-kb" min="1" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:border-brand-500 font-mono">
+                    </div>
+
+                    <!-- Output Format Choice -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-300">Output Format Strategy:</label>
+                        <select id="red-format" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-xs focus:outline-none focus:border-brand-500">
+                            <option value="image/jpeg">JPEG (High Compressibility)</option>
+                            <option value="image/webp">WEBP (Modern Efficient Format)</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="btn-process-red" disabled onclick="processReduceSize()" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:hover:bg-brand-600 text-white rounded-xl font-medium text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Compress to Target KB</span>
+                    </button>
+                </div>
+
+                <!-- Live Compare Right -->
+                <div class="lg:col-span-7 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between min-h-[380px] transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3 flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-slate-200">Side-by-Side Compression Result</h3>
+                        <span id="badge-red-reduction" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-500 hidden">0% Saved</span>
+                    </div>
+
+                    <!-- Comparison Canvas/Image -->
+                    <div class="flex-1 my-4 checkerboard-bg rounded-xl border border-slate-700/50 flex items-center justify-center overflow-hidden relative p-4 min-h-[250px]">
+                        <img id="img-red-preview" class="max-h-[320px] max-w-full object-contain rounded shadow-md hidden" alt="Compressed Preview">
+                        <div id="placeholder-red" class="text-center text-slate-500 text-xs">
+                            <i class="fa-solid fa-minimize text-4xl mb-2 block"></i>
+                            Select an image and specify maximum target size
+                        </div>
+                    </div>
+
+                    <!-- Download Row -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
+                        <div>
+                            <div class="text-xs text-slate-400">Achieved File Size</div>
+                            <div id="red-result-size" class="text-lg font-bold text-emerald-500 font-mono">-- KB</div>
+                        </div>
+                        <button id="btn-download-red" disabled onclick="downloadRedResult()" class="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Download Compressed Image</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL 3: IMAGE MERGER -->
+        <section id="tool-merge" class="tool-content space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Control Panel Left -->
+                <div class="lg:col-span-4 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 space-y-5 transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3">
+                        <h2 class="text-base font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-object-group text-brand-500"></i> Image Merger & Canvas
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Combine multiple photos into auto-aligned grids or free style canvas layout.</p>
+                    </div>
+
+                    <!-- Multi-file Upload -->
+                    <div id="dropzone-merge" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-5 text-center cursor-pointer transition-colors bg-slate-900/40">
+                        <input type="file" id="files-merge" accept="image/*" multiple class="hidden">
+                        <i class="fa-solid fa-images text-2xl text-brand-500 mb-1"></i>
+                        <p class="text-xs font-medium text-slate-200">Upload Multiple Images</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Select multiple images to merge</p>
+                    </div>
+
+                    <!-- Layout Mode Selector -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-300">Layout Mode:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setMergeMode('proper')" id="mode-proper" class="py-2 px-3 text-xs rounded-lg border border-brand-500 bg-brand-500/20 font-medium text-brand-500 flex items-center justify-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-table-columns"></i>
+                                <span>Proper Align</span>
+                            </button>
+                            <button onclick="setMergeMode('free')" id="mode-free" class="py-2 px-3 text-xs rounded-lg border border-slate-700 bg-slate-900 font-medium text-slate-400 flex items-center justify-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-hand-pointer"></i>
+                                <span>Free Style</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Direction Toggle (Only for Proper Align) -->
+                    <div id="opts-direction" class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-300">Merge Direction:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setMergeDirection('horizontal')" id="dir-horiz" class="py-2 px-3 text-xs rounded-lg border border-brand-500 bg-brand-500/20 font-medium text-brand-500 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-arrows-left-right"></i>
+                                <span>↔ Horizontal</span>
+                            </button>
+                            <button onclick="setMergeDirection('vertical')" id="dir-vert" class="py-2 px-3 text-xs rounded-lg border border-slate-700 bg-slate-900 font-medium text-slate-400 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-arrows-up-down"></i>
+                                <span>↕ Vertical</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Customization Options -->
+                    <div class="space-y-3 pt-2 border-t border-slate-700/60">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">Padding (px)</label>
+                                <input type="number" id="merge-padding" value="10" min="0" max="100" oninput="renderMergeCanvas()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">Corner Radius</label>
+                                <input type="number" id="merge-radius" value="8" min="0" max="50" oninput="renderMergeCanvas()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-mono">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Background Color</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="merge-bg-color" value="#0f172a" oninput="renderMergeCanvas()" class="h-8 w-12 rounded cursor-pointer border border-slate-700 bg-slate-900">
+                                <button onclick="setBgTransparent()" class="text-xs px-2.5 py-1 bg-slate-900 border border-slate-700 rounded text-slate-300 hover:bg-slate-700">Transparent</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loaded Image Items Queue -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400 font-medium">Uploaded Images (<span id="merge-img-count">0</span>)</span>
+                            <button onclick="clearMergeList()" class="text-rose-500 hover:text-rose-400 text-[11px]">Clear All</button>
+                        </div>
+                        <div id="merge-queue" class="max-h-48 overflow-y-auto space-y-2 pr-1">
+                            <p class="text-slate-500 text-xs italic text-center py-4">No images added yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Preview Canvas Right -->
+                <div class="lg:col-span-8 bg-slate-800/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between min-h-[480px] transition-colors duration-300">
+                    <div class="border-b border-slate-700/60 pb-3 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-semibold text-slate-200">Merged Canvas Workspace</h3>
+                            <span id="free-help" class="text-[11px] text-amber-500 hidden"><i class="fa-solid fa-circle-info"></i> Drag/Resize images directly on canvas</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select id="merge-export-format" class="bg-slate-900 border border-slate-700 rounded text-xs px-2 py-1">
+                                <option value="image/png">PNG</option>
+                                <option value="image/jpeg">JPEG</option>
+                                <option value="image/webp">WEBP</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Workspace -->
+                    <div class="flex-1 my-4 checkerboard-bg rounded-xl border border-slate-700/50 flex items-center justify-center overflow-auto p-4 relative min-h-[350px]">
+                        <canvas id="merge-canvas" class="max-w-full rounded shadow-xl border border-slate-700/40"></canvas>
+                        <div id="placeholder-merge" class="text-center text-slate-500 text-xs">
+                            <i class="fa-solid fa-layer-group text-4xl mb-2 block"></i>
+                            Upload images on the left to combine them here
+                        </div>
+                    </div>
+
+                    <!-- Controls & Export -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-700/60">
+                        <div class="text-xs text-slate-400">
+                            Canvas Resolution: <span id="merge-dimensions" class="font-mono text-slate-200">0 x 0 px</span>
+                        </div>
+                        <button id="btn-download-merge" disabled onclick="downloadMergeResult()" class="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Export & Download Merged Image</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Enhanced Theme Switcher with Persistence and Smooth Transitions
+        const themeToggleBtn = document.getElementById('themeToggle');
+        
+        // Initialize Theme from localStorage or default to Dark
+        const storedTheme = localStorage.getItem('theme') || 'dark';
+        if (storedTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabKey) {
+            document.querySelectorAll('.tool-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-brand-600', 'text-white', 'shadow-lg');
+                btn.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`tool-${tabKey}`).classList.remove('hidden');
+            const activeTab = document.getElementById(`tab-${tabKey}`);
+            activeTab.classList.add('active', 'bg-brand-600', 'text-white', 'shadow-lg');
+            activeTab.classList.remove('text-slate-400');
+        }
+
+        /* Utility Helper Functions */
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 KB';
+            const kb = bytes / 1024;
+            if (kb < 1024) return kb.toFixed(2) + ' KB';
+            return (kb / 1024).toFixed(2) + ' MB';
+        }
+
+        let incState = { file: null, img: null, resultBlob: null };
+
+        const dropzoneInc = document.getElementById('dropzone-inc');
+        const fileInc = document.getElementById('file-inc');
+
+        dropzoneInc.addEventListener('click', () => fileInc.click());
+        dropzoneInc.addEventListener('dragover', (e) => { e.preventDefault(); dropzoneInc.classList.add('border-brand-500'); });
+        dropzoneInc.addEventListener('dragleave', () => dropzoneInc.classList.remove('border-brand-500'));
+        dropzoneInc.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzoneInc.classList.remove('border-brand-500');
+            if (e.dataTransfer.files.length) handleIncFile(e.dataTransfer.files[0]);
+        });
+        fileInc.addEventListener('change', (e) => { if (e.target.files.length) handleIncFile(e.target.files[0]); });
+
+        function handleIncFile(file) {
+            if (!file.type.startsWith('image/')) return;
+            incState.file = file;
+
+            document.getElementById('inc-orig-size').innerText = formatBytes(file.size);
+            document.getElementById('info-inc-orig').classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    incState.img = img;
+                    document.getElementById('inc-orig-dim').innerText = `${img.width} x ${img.height} px`;
+                    document.getElementById('img-inc-preview').src = e.target.result;
+                    document.getElementById('img-inc-preview').classList.remove('hidden');
+                    document.getElementById('placeholder-inc').classList.add('hidden');
+                    document.getElementById('btn-process-inc').disabled = false;
+                    
+                    // Set default target to 1.5x original KB
+                    const kbOriginal = Math.round(file.size / 1024);
+                    document.getElementById('inc-target-kb').value = Math.max(kbOriginal + 100, Math.round(kbOriginal * 1.5));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function processIncreaseSize() {
+            if (!incState.img || !incState.file) return;
+
+            const targetKB = parseInt(document.getElementById('inc-target-kb').value);
+            const targetBytes = targetKB * 1024;
+            const originalBytes = incState.file.size;
+
+            const statusBadge = document.getElementById('badge-inc-status');
+            statusBadge.innerText = 'Processing...';
+            statusBadge.className = 'text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400';
+
+            if (targetBytes <= originalBytes) {
+                // Return original or minimal format
+                incState.resultBlob = incState.file;
+                finishIncProcessing(incState.file.size);
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = incState.img.width;
+            canvas.height = incState.img.height;
+            ctx.drawImage(incState.img, 0, 0);
+
+            // Export lossless PNG or high quality JPEG
+            canvas.toBlob(async (baseBlob) => {
+                let currentBlob = baseBlob;
+                
+                // If base blob is still under target, inject padded metadata chunk
+                if (currentBlob.size < targetBytes) {
+                    const neededPadding = targetBytes - currentBlob.size;
+                    const arrayBuffer = await currentBlob.arrayBuffer();
+                    
+                    // Append harmless metadata buffer padding bytes
+                    const padding = new Uint8Array(neededPadding);
+                    const combined = new Uint8Array(arrayBuffer.byteLength + padding.byteLength);
+                    combined.set(new Uint8Array(arrayBuffer), 0);
+                    combined.set(padding, arrayBuffer.byteLength);
+
+                    currentBlob = new Blob([combined], { type: currentBlob.type });
+                }
+
+                incState.resultBlob = currentBlob;
+                finishIncProcessing(currentBlob.size);
+            }, 'image/png');
+        }
+
+        function finishIncProcessing(sizeBytes) {
+            document.getElementById('inc-result-size').innerText = formatBytes(sizeBytes);
+            document.getElementById('btn-download-inc').disabled = false;
+
+            const statusBadge = document.getElementById('badge-inc-status');
+            statusBadge.innerText = 'Size Inflated';
+            statusBadge.className = 'text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400';
+        }
+
+        function downloadIncResult() {
+            if (!incState.resultBlob) return;
+            const url = URL.createObjectURL(incState.resultBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `increased_${incState.file.name}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        let redState = { file: null, img: null, resultBlob: null };
+
+        const dropzoneRed = document.getElementById('dropzone-red');
+        const fileRed = document.getElementById('file-red');
+
+        dropzoneRed.addEventListener('click', () => fileRed.click());
+        dropzoneRed.addEventListener('dragover', (e) => { e.preventDefault(); dropzoneRed.classList.add('border-brand-500'); });
+        dropzoneRed.addEventListener('dragleave', () => dropzoneRed.classList.remove('border-brand-500'));
+        dropzoneRed.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzoneRed.classList.remove('border-brand-500');
+            if (e.dataTransfer.files.length) handleRedFile(e.dataTransfer.files[0]);
+        });
+        fileRed.addEventListener('change', (e) => { if (e.target.files.length) handleRedFile(e.target.files[0]); });
+
+        function handleRedFile(file) {
+            if (!file.type.startsWith('image/')) return;
+            redState.file = file;
+
+            document.getElementById('red-orig-size').innerText = formatBytes(file.size);
+            document.getElementById('info-red-orig').classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    redState.img = img;
+                    document.getElementById('red-orig-dim').innerText = `${img.width} x ${img.height} px`;
+                    document.getElementById('btn-process-red').disabled = false;
+                    
+                    const origKB = Math.round(file.size / 1024);
+                    const targetInput = document.getElementById('red-target-kb');
+                    targetInput.value = Math.max(10, Math.round(origKB * 0.5));
+                    document.getElementById('red-kb-display').innerText = targetInput.value + ' KB';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('red-target-kb').addEventListener('input', (e) => {
+            document.getElementById('red-kb-display').innerText = (e.target.value || 0) + ' KB';
+        });
+
+        async function processReduceSize() {
+            if (!redState.img) return;
+
+            const targetKB = parseFloat(document.getElementById('red-target-kb').value);
+            const targetBytes = targetKB * 1024;
+            const mimeType = document.getElementById('red-format').value;
+
+            let canvas = document.createElement('canvas');
+            let ctx = canvas.getContext('2d');
+            
+            let scale = 1.0;
+            let quality = 0.92;
+            let blob = null;
+
+            // Iterative binary search reduction loop
+            for (let attempt = 0; attempt < 12; attempt++) {
+                canvas.width = Math.round(redState.img.width * scale);
+                canvas.height = Math.round(redState.img.height * scale);
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(redState.img, 0, 0, canvas.width, canvas.height);
+
+                blob = await new Promise(resolve => canvas.toBlob(resolve, mimeType, quality));
+
+                if (blob.size <= targetBytes) {
+                    break;
+                }
+
+                // First adjust quality, then scale dimensions if necessary
+                if (quality > 0.3) {
+                    quality -= 0.15;
+                } else {
+                    scale *= 0.85;
+                }
+            }
+
+            redState.resultBlob = blob;
+            
+            // Display Results
+            const previewImg = document.getElementById('img-red-preview');
+            previewImg.src = URL.createObjectURL(blob);
+            previewImg.classList.remove('hidden');
+            document.getElementById('placeholder-red').classList.add('hidden');
+
+            document.getElementById('red-result-size').innerText = formatBytes(blob.size);
+            document.getElementById('btn-download-red').disabled = false;
+
+            // Calculate Reduction % Badge
+            const savedPct = Math.round(((redState.file.size - blob.size) / redState.file.size) * 100);
+            const badge = document.getElementById('badge-red-reduction');
+            badge.innerText = savedPct >= 0 ? `${savedPct}% Smaller` : 'Size Target Set';
+            badge.classList.remove('hidden');
+        }
+
+        function downloadRedResult() {
+            if (!redState.resultBlob) return;
+            const ext = document.getElementById('red-format').value === 'image/webp' ? 'webp' : 'jpg';
+            const url = URL.createObjectURL(redState.resultBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `compressed_image.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        let mergeState = {
+            images: [], // { id, img, x, y, width, height, rotation }
+            mode: 'proper', // 'proper' | 'free'
+            direction: 'horizontal', // 'horizontal' | 'vertical'
+            isTransparentBg: false,
+            selectedIdx: -1,
+            isDragging: false,
+            dragOffset: { x: 0, y: 0 }
+        };
+
+        const dropzoneMerge = document.getElementById('dropzone-merge');
+        const filesMerge = document.getElementById('files-merge');
+        const canvasMerge = document.getElementById('merge-canvas');
+        const ctxMerge = canvasMerge.getContext('2d');
+
+        dropzoneMerge.addEventListener('click', () => filesMerge.click());
+        filesMerge.addEventListener('change', (e) => handleMergeFiles(e.target.files));
+
+        function handleMergeFiles(files) {
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        mergeState.images.push({
+                            id: Date.now() + Math.random(),
+                            file: file,
+                            img: img,
+                            x: 20,
+                            y: 20,
+                            width: img.width > 300 ? 300 : img.width,
+                            height: img.height > 300 ? (300 * (img.height / img.width)) : img.height,
+                            rotation: 0
+                        });
+                        updateMergeQueueUI();
+                        renderMergeCanvas();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function setMergeMode(mode) {
+            mergeState.mode = mode;
+            document.getElementById('mode-proper').className = mode === 'proper' ? 
+                'py-2 px-3 text-xs rounded-lg border border-brand-500 bg-brand-500/20 font-medium text-brand-300 flex items-center justify-center gap-1.5' : 
+                'py-2 px-3 text-xs rounded-lg border border-slate-700 bg-slate-900 font-medium text-slate-400 flex items-center justify-center gap-1.5';
+            
+            document.getElementById('mode-free').className = mode === 'free' ? 
+                'py-2 px-3 text-xs rounded-lg border border-brand-500 bg-brand-500/20 font-medium text-brand-300 flex items-center justify-center gap-1.5' : 
+                'py-2 px-3 text-xs rounded-lg border border-slate-700 bg-slate-900 font-medium text-slate-400 flex items-center justify-center gap-1.5';
+
+            document.getElementById('opts-direction').style.display = mode === 'proper' ? 'block' : 'none';
+            document.getElementById('free-help').style.display = mode === 'free' ? 'inline-block' : 'none';
+
+            renderMergeCanvas();
+        }
+
+        function setMergeDirection(dir) {
+            mergeState.direction = dir;
+            document.getElementById('dir-horiz').className = dir === 'horizontal' ? 
+                'py-2 px-3 text-xs rounded-lg border border-brand-500 bg-brand-500/20 font-medium text-brand-300 flex items-center justify-center gap-1.5' : 
+                'py-2 px-3 text-xs rounded-lg border border-slate-700 bg-slate-900 font-medium text-slate-400 flex items-center justify-center gap-1.5';
+
+            document.getElementById('dir-vert').className = dir === 'vertical' ? 
+                'py-2 px-3 text-xs rounded-lg border border-brand-500 bg-brand-500/20 font-medium text-brand-300 flex items-center justify-center gap-1.5' : 
+                'py-2 px-3 text-xs rounded-lg border border-slate-700 bg-slate-900 font-medium text-slate-400 flex items-center justify-center gap-1.5';
+
+            renderMergeCanvas();
+        }
+
+        function setBgTransparent() {
+            mergeState.isTransparentBg = !mergeState.isTransparentBg;
+            renderMergeCanvas();
+        }
+
+        function updateMergeQueueUI() {
+            const queueContainer = document.getElementById('merge-queue');
+            document.getElementById('merge-img-count').innerText = mergeState.images.length;
+
+            if (mergeState.images.length === 0) {
+                queueContainer.innerHTML = '<p class="text-slate-500 text-xs italic text-center py-4">No images added yet.</p>';
+                document.getElementById('placeholder-merge').classList.remove('hidden');
+                document.getElementById('btn-download-merge').disabled = true;
+                return;
+            }
+
+            document.getElementById('placeholder-merge').classList.add('hidden');
+            document.getElementById('btn-download-merge').disabled = false;
+
+            queueContainer.innerHTML = mergeState.images.map((item, idx) => `
+                <div class="flex items-center justify-between p-2 bg-slate-900 border border-slate-700/60 rounded-lg text-xs">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <img src="${item.img.src}" class="w-8 h-8 object-cover rounded">
+                        <span class="truncate text-slate-300 max-w-[120px]">${item.file.name}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="moveMergeItem(${idx}, -1)" class="p-1 hover:text-brand-400"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="moveMergeItem(${idx}, 1)" class="p-1 hover:text-brand-400"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="removeMergeItem(${idx})" class="p-1 text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moveMergeItem(idx, dir) {
+            const newIdx = idx + dir;
+            if (newIdx < 0 || newIdx >= mergeState.images.length) return;
+            const temp = mergeState.images[idx];
+            mergeState.images[idx] = mergeState.images[newIdx];
+            mergeState.images[newIdx] = temp;
+            updateMergeQueueUI();
+            renderMergeCanvas();
+        }
+
+        function removeMergeItem(idx) {
+            mergeState.images.splice(idx, 1);
+            updateMergeQueueUI();
+            renderMergeCanvas();
+        }
+
+        function clearMergeList() {
+            mergeState.images = [];
+            updateMergeQueueUI();
+            renderMergeCanvas();
+        }
+
+        function renderMergeCanvas() {
+            if (mergeState.images.length === 0) {
+                canvasMerge.width = 0;
+                canvasMerge.height = 0;
+                document.getElementById('merge-dimensions').innerText = '0 x 0 px';
+                return;
+            }
+
+            const padding = parseInt(document.getElementById('merge-padding').value) || 0;
+            const radius = parseInt(document.getElementById('merge-radius').value) || 0;
+            const bgColor = document.getElementById('merge-bg-color').value;
+
+            if (mergeState.mode === 'proper') {
+                // Auto-Align calculations
+                if (mergeState.direction === 'horizontal') {
+                    const targetHeight = 400; // Normalized height
+                    let totalWidth = padding;
+
+                    const scaledImages = mergeState.images.map(item => {
+                        const scaledW = Math.round((targetHeight / item.img.height) * item.img.width);
+                        return { img: item.img, width: scaledW, height: targetHeight };
+                    });
+
+                    scaledImages.forEach(img => totalWidth += img.width + padding);
+
+                    canvasMerge.width = totalWidth;
+                    canvasMerge.height = targetHeight + (padding * 2);
+
+                    // Clear Background
+                    ctxMerge.clearRect(0, 0, canvasMerge.width, canvasMerge.height);
+                    if (!mergeState.isTransparentBg) {
+                        ctxMerge.fillStyle = bgColor;
+                        ctxMerge.fillRect(0, 0, canvasMerge.width, canvasMerge.height);
+                    }
+
+                    // Render Images
+                    let currentX = padding;
+                    scaledImages.forEach(item => {
+                        drawRoundedImage(ctxMerge, item.img, currentX, padding, item.width, item.height, radius);
+                        currentX += item.width + padding;
+                    });
+                } else {
+                    // Vertical Mode
+                    const targetWidth = 500; // Normalized width
+                    let totalHeight = padding;
+
+                    const scaledImages = mergeState.images.map(item => {
+                        const scaledH = Math.round((targetWidth / item.img.width) * item.img.height);
+                        return { img: item.img, width: targetWidth, height: scaledH };
+                    });
+
+                    scaledImages.forEach(img => totalHeight += img.height + padding);
+
+                    canvasMerge.width = targetWidth + (padding * 2);
+                    canvasMerge.height = totalHeight;
+
+                    // Clear Background
+                    ctxMerge.clearRect(0, 0, canvasMerge.width, canvasMerge.height);
+                    if (!mergeState.isTransparentBg) {
+                        ctxMerge.fillStyle = bgColor;
+                        ctxMerge.fillRect(0, 0, canvasMerge.width, canvasMerge.height);
+                    }
+
+                    let currentY = padding;
+                    scaledImages.forEach(item => {
+                        drawRoundedImage(ctxMerge, item.img, padding, currentY, item.width, item.height, radius);
+                        currentY += item.height + padding;
+                    });
+                }
+            } else {
+                // Free Style Mode
+                canvasMerge.width = 800;
+                canvasMerge.height = 600;
+
+                ctxMerge.clearRect(0, 0, canvasMerge.width, canvasMerge.height);
+                if (!mergeState.isTransparentBg) {
+                    ctxMerge.fillStyle = bgColor;
+                    ctxMerge.fillRect(0, 0, canvasMerge.width, canvasMerge.height);
+                }
+
+                mergeState.images.forEach((item, idx) => {
+                    drawRoundedImage(ctxMerge, item.img, item.x, item.y, item.width, item.height, radius);
+                    
+                    // Highlight selected element in free style
+                    if (idx === mergeState.selectedIdx) {
+                        ctxMerge.strokeStyle = '#0ea5e9';
+                        ctxMerge.lineWidth = 2;
+                        ctxMerge.strokeRect(item.x - 2, item.y - 2, item.width + 4, item.height + 4);
+                    }
+                });
+            }
+
+            document.getElementById('merge-dimensions').innerText = `${canvasMerge.width} x ${canvasMerge.height} px`;
+        }
+
+        function drawRoundedImage(ctx, img, x, y, width, height, radius) {
+            ctx.save();
+            if (radius > 0) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.arcTo(x + width, y, x + width, y + height, radius);
+                ctx.arcTo(x + width, y + height, x, y + height, radius);
+                ctx.arcTo(x, y + height, x, y, radius);
+                ctx.arcTo(x, y, x + width, y, radius);
+                ctx.closePath();
+                ctx.clip();
+            }
+            ctx.drawImage(img, x, y, width, height);
+            ctx.restore();
+        }
+
+        canvasMerge.addEventListener('mousedown', (e) => {
+            if (mergeState.mode !== 'free') return;
+            const rect = canvasMerge.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left) * (canvasMerge.width / rect.width);
+            const mouseY = (e.clientY - rect.top) * (canvasMerge.height / rect.height);
+
+            // Hit test backwards to select top-most item
+            for (let i = mergeState.images.length - 1; i >= 0; i--) {
+                const item = mergeState.images[i];
+                if (mouseX >= item.x && mouseX <= item.x + item.width &&
+                    mouseY >= item.y && mouseY <= item.y + item.height) {
+                    mergeState.selectedIdx = i;
+                    mergeState.isDragging = true;
+                    mergeState.dragOffset = { x: mouseX - item.x, y: mouseY - item.y };
+                    renderMergeCanvas();
+                    return;
+                }
+            }
+            mergeState.selectedIdx = -1;
+            renderMergeCanvas();
+        });
+
+        canvasMerge.addEventListener('mousemove', (e) => {
+            if (!mergeState.isDragging || mergeState.selectedIdx === -1 || mergeState.mode !== 'free') return;
+            const rect = canvasMerge.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left) * (canvasMerge.width / rect.width);
+            const mouseY = (e.clientY - rect.top) * (canvasMerge.height / rect.height);
+
+            const item = mergeState.images[mergeState.selectedIdx];
+            item.x = mouseX - mergeState.dragOffset.x;
+            item.y = mouseY - mergeState.dragOffset.y;
+            renderMergeCanvas();
+        });
+
+        window.addEventListener('mouseup', () => {
+            mergeState.isDragging = false;
+        });
+
+        function downloadMergeResult() {
+            if (mergeState.images.length === 0) return;
+            const format = document.getElementById('merge-export-format').value;
+            const ext = format === 'image/jpeg' ? 'jpg' : format === 'image/webp' ? 'webp' : 'png';
+            
+            const a = document.createElement('a');
+            a.download = `merged_image.${ext}`;
+            a.href = canvasMerge.toDataURL(format, 0.95);
+            a.click();
+        }
+    </script>
+</body>
+</html>
