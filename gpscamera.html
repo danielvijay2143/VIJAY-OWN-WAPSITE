@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GPS Camera App - Live Stream & Stamping</title>
+  
+  <!-- Leaflet CSS for Map Inset -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg-dark: #090d16;
+      --card-bg: rgba(15, 23, 42, 0.88);
+      --text-light: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    .main-wrapper {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* Live Camera Container */
+    .viewfinder-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      background-color: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Camera Permissions Overlay */
+    .permission-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      gap: 12px;
+      z-index: 20;
+    }
+
+    .permission-overlay button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    /* Overlay Stamp matching screenshot style */
+    .stamp-overlay {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .map-box {
+      width: 95px;
+      height: 95px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .info-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      line-height: 1.3;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .location-title {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .address-line {
+      color: #cbd5e1;
+      font-size: 0.72rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .timestamp-line {
+      color: #94a3b8;
+      font-size: 0.7rem;
+    }
+
+    .coords-line {
+      color: #cbd5e1;
+      font-family: monospace;
+      font-size: 0.72rem;
+    }
+
+    .telemetry-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: #94a3b8;
+      font-size: 0.68rem;
+    }
+
+    /* Controls Panel */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #1e293b;
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button.btn-action {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    button.btn-capture {
+      background: #22c55e;
+      color: white;
+    }
+
+    button.btn-capture:hover {
+      background: #16a34a;
+    }
+
+    button.btn-secondary {
+      background: #334155;
+      color: white;
+    }
+
+    button.btn-secondary:hover {
+      background: #475569;
+    }
+
+    /* Gallery Grid */
+    .gallery {
+      margin-top: 10px;
+    }
+
+    .gallery h2 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .gallery-card {
+      background: #1e293b;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gallery-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+
+    .gallery-card .card-actions {
+      padding: 6px;
+      text-align: center;
+    }
+
+    .gallery-card a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📷Vijay GPS Camera Live</h1>
+    <p>Real-Time Camera Stream & Geotagging</p>
+  </header>
+
+  <div class="main-wrapper">
+
+    <!-- Viewfinder -->
+    <div class="viewfinder-wrapper">
+      
+      <!-- Camera Permission Mask -->
+      <div class="permission-overlay" id="permOverlay">
+        <p>Live camera access and location permissions are required.</p>
+        <button onclick="initCameraAndLocation()">Enable Camera & GPS</button>
+      </div>
+
+      <video id="video" autoplay playsinline muted></video>
+
+      <!-- Live Stamp Overlay Overlaying Live Video -->
+      <div class="stamp-overlay">
+        <div class="map-box">
+          <div id="map"></div>
+        </div>
+        <div class="info-box">
+          <div class="location-title" id="dispTitle">Nayur, Tamil Nadu, India</div>
+          <div class="address-line" id="dispAddress">766F+GGV, Nayur, Nayar, Tamil Nadu 600067, India</div>
+          <div class="timestamp-line" id="dispTime">--</div>
+          <div class="coords-line" id="dispCoords">Lat: 13.261258, Long: 80.224375</div>
+          <div class="telemetry-bar">
+            <span>🧭 <span id="dispHeading">143 SE</span></span>
+            <span>⛅ <span id="dispTemp">33.29°</span></span>
+            <span>💧 <span id="dispHum">60%</span></span>
+            <span>🚘 <span id="dispSpeed">17.89 km/h</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="btn-row">
+        <button class="btn-action btn-capture" onclick="captureLivePhoto()">📸 Capture Photo</button>
+        <button class="btn-action btn-secondary" onclick="switchCamera()">🔄 Switch Cam</button>
+      </div>
+    </div>
+
+    <!-- Gallery Output -->
+    <div class="gallery">
+      <h2>Captured Photos</h2>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let map, marker;
+    let videoStream = null;
+    let currentFacingMode = 'environment'; // Rear camera default
+
+    let currentData = {
+      lat: 13.261258,
+      lng: 80.224375,
+      title: "Nayur, Tamil Nadu, India",
+      address: "766F+GGV, Nayur, Nayar, Tamil Nadu 600067, India",
+      heading: "143 SE",
+      temp: "33.29°",
+      hum: "60%",
+      speed: "0.00 km/h"
+    };
+
+    // Live Clock Engine
+    function startClock() {
+      setInterval(() => {
+        const now = new Date();
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayStr = days[now.getDay()];
+        const dateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12 || 12;
+        const timeFormatted = `${dayStr}, ${dateStr}, ${hours}:${minutes} ${ampm}  GMT +05:30`;
+        document.getElementById('dispTime').innerText = timeFormatted;
+      }, 1000);
+    }
+
+    // Initialize Map Inset
+    function initMap() {
+      map = L.map('map', { zoomControl: false, attributionControl: false }).setView([currentData.lat, currentData.lng], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      marker = L.marker([currentData.lat, currentData.lng]).addTo(map);
+    }
+
+    // Camera Access Initializer
+    async function initCameraAndLocation() {
+      document.getElementById('permOverlay').style.display = 'none';
+      await startCameraStream(currentFacingMode);
+      startLiveGPS();
+      startClock();
+    }
+
+    async function startCameraStream(facingMode) {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        const videoElem = document.getElementById('video');
+        videoElem.srcObject = videoStream;
+      } catch (err) {
+        alert("Unable to access camera: " + err.message);
+        document.getElementById('permOverlay').style.display = 'flex';
+      }
+    }
+
+    function switchCamera() {
+      currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+      startCameraStream(currentFacingMode);
+    }
+
+    // Live Geolocation Tracking
+    function startLiveGPS() {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+          pos => {
+            currentData.lat = pos.coords.latitude;
+            currentData.lng = pos.coords.longitude;
+            if (pos.coords.speed) {
+              currentData.speed = (pos.coords.speed * 3.6).toFixed(2) + " km/h";
+            }
+            updateOverlayData();
+            if (map && marker) {
+              map.setView([currentData.lat, currentData.lng], 15);
+              marker.setLatLng([currentData.lat, currentData.lng]);
+            }
+          },
+          err => console.warn("GPS Warning:", err.message),
+          { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+        );
+      }
+    }
+
+    function updateOverlayData() {
+      document.getElementById('dispTitle').innerText = currentData.title;
+      document.getElementById('dispAddress').innerText = currentData.address;
+      document.getElementById('dispCoords').innerText = `Lat: ${currentData.lat.toFixed(6)}, Long: ${currentData.lng.toFixed(6)}`;
+      document.getElementById('dispHeading').innerText = currentData.heading;
+      document.getElementById('dispTemp').innerText = currentData.temp;
+      document.getElementById('dispHum').innerText = currentData.hum;
+      document.getElementById('dispSpeed').innerText = currentData.speed;
+    }
+
+    // Capture Frame & Burn Stamp onto HTML5 Canvas
+    function captureLivePhoto() {
+      const video = document.getElementById('video');
+      if (!video.videoWidth) {
+        alert("Camera stream is not ready yet.");
+        return;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 720;
+      canvas.height = video.videoHeight || 960;
+      const ctx = canvas.getContext('2d');
+
+      // Draw Video Snapshot
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Card Dimensions
+      const cardHeight = 150;
+      const cardMargin = 15;
+      const cardY = canvas.height - cardHeight - cardMargin;
+      const cardWidth = canvas.width - (cardMargin * 2);
+
+      // Dark Glass Background Card
+      ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
+      ctx.beginPath();
+      ctx.roundRect(cardMargin, cardY, cardWidth, cardHeight, 12);
+      ctx.fill();
+
+      // Burn Text Content
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 18px sans-serif";
+      ctx.fillText(currentData.title, cardMargin + 15, cardY + 30);
+
+      ctx.fillStyle = "#CBD5E1";
+      ctx.font = "13px sans-serif";
+      ctx.fillText(currentData.address, cardMargin + 15, cardY + 55);
+
+      ctx.fillStyle = "#94A3B8";
+      ctx.font = "12px sans-serif";
+      ctx.fillText(document.getElementById('dispTime').innerText, cardMargin + 15, cardY + 80);
+
+      ctx.fillStyle = "#CBD5E1";
+      ctx.font = "13px monospace";
+      ctx.fillText(`Lat: ${currentData.lat.toFixed(6)}, Long: ${currentData.lng.toFixed(6)}`, cardMargin + 15, cardY + 105);
+
+      ctx.fillStyle = "#94A3B8";
+      ctx.font = "12px sans-serif";
+      ctx.fillText(`🧭 ${currentData.heading}  ⛅ ${currentData.temp}  💧 ${currentData.hum}  🚘 ${currentData.speed}`, cardMargin + 15, cardY + 130);
+
+      // Add to Gallery Grid
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      const gallery = document.getElementById('galleryGrid');
+      const card = document.createElement('div');
+      card.className = 'gallery-card';
+      card.innerHTML = `
+        <img src="${dataUrl}">
+        <div class="card-actions">
+          <a href="${dataUrl}" download="GPS_Capture_${Date.now()}.jpg">Download</a>
+        </div>
+      `;
+      gallery.prepend(card);
+    }
+
+    // Auto Init Map on Load
+    window.onload = () => {
+      initMap();
+    };
+  </script>
+</body>
+</html>
