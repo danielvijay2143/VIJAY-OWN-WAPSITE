@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickPay - Money Transfer Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+        }
+        /* Pulse Animation for Success Check */
+        @keyframes scaleUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-up {
+            animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col justify-between items-center p-4 sm:p-6">
+
+    <!-- Main Application Container -->
+    <div class="w-full max-w-md mx-auto my-auto">
+        <!-- Header Brand Card -->
+        <div class="gradient-bg text-white p-6 rounded-t-2xl shadow-lg relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid font-bold text-2xl fa-bolt text-amber-300"></i>
+                        <h1 class="text-2xl font-bold tracking-tight">QuickPay</h1>
+                    </div>
+                    <p class="text-blue-100 text-xs mt-1">Instant Direct Money Transfer</p>
+                </div>
+                <span class="bg-blue-500/30 text-blue-100 text-xs px-2.5 py-1 rounded-full border border-blue-300/30 font-medium">
+                    UPI Active
+                </span>
+            </div>
+        </div>
+
+        <!-- Transfer Form Card -->
+        <div class="bg-white p-6 rounded-b-2xl shadow-xl border-t-0 border border-gray-100">
+            <form id="transferForm" onsubmit="event.preventDefault();" class="space-y-5">
+                
+                <!-- Mobile Input & Auto-Generated UPI Section -->
+                <div>
+                    <label for="mobileNumber" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                        Recipient Mobile Number
+                    </label>
+                    <div class="relative rounded-xl shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-phone text-sm"></i>
+                        </div>
+                        <input type="tel" id="mobileNumber" maxlength="10" placeholder="Enter 10-digit mobile" 
+                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition text-gray-800 font-medium tracking-wide"
+                            oninput="validateAndCalculate()" />
+                    </div>
+                    <p id="mobileError" class="text-red-500 text-xs mt-1 hidden">Please enter a valid 10-digit mobile number.</p>
+
+                    <!-- Auto-Generated UPI Handle Preview Card -->
+                    <div id="upiHandleContainer" class="mt-3 p-3 bg-blue-50/70 border border-blue-100 rounded-xl hidden">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[11px] font-semibold text-blue-700 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> Auto-Generated UPI Handle
+                            </span>
+                            <span class="text-[10px] bg-blue-200/60 text-blue-800 font-bold px-1.5 py-0.5 rounded">Active</span>
+                        </div>
+                        <div class="text-sm font-bold text-gray-800 break-all flex items-center justify-between">
+                            <span id="generatedUpiDisplay" class="text-blue-900"></span>
+                            <i class="fa-solid fa-circle-check text-emerald-500 text-base"></i>
+                        </div>
+
+                        <!-- Quick App Handle Provider Selectors -->
+                        <div class="mt-2.5 pt-2 border-t border-blue-100">
+                            <span class="text-[10px] text-gray-500 block mb-1 font-medium">Switch Target App Handle:</span>
+                            <div class="grid grid-cols-4 gap-1.5 text-center">
+                                <button type="button" onclick="selectHandleSuffix('@ybl')" id="btn-ybl" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
+                                    PhonePe
+                                </button>
+                                <button type="button" onclick="selectHandleSuffix('@okaxis')" id="btn-okaxis" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
+                                    GPay
+                                </button>
+                                <button type="button" onclick="selectHandleSuffix('@paytm')" id="btn-paytm" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
+                                    Paytm
+                                </button>
+                                <button type="button" onclick="selectHandleSuffix('@upi')" id="btn-upi" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
+                                    BHIM
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Base Amount Input -->
+                <div>
+                    <label for="baseAmount" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                        Base Transfer Amount (₹)
+                    </label>
+                    <div class="relative rounded-xl shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500 font-semibold">
+                            ₹
+                        </div>
+                        <input type="number" id="baseAmount" placeholder="e.g. 1000, 2000, 3000" 
+                            class="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition text-gray-800 font-semibold text-lg"
+                            oninput="validateAndCalculate()" />
+                    </div>
+                </div>
+
+                <!-- Quick Select Preset Buttons -->
+                <div class="grid grid-cols-4 gap-2">
+                    <button type="button" onclick="setPresetAmount(1000)" class="py-1.5 px-2 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg border border-blue-200 transition">₹1000</button>
+                    <button type="button" onclick="setPresetAmount(2000)" class="py-1.5 px-2 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg border border-blue-200 transition">₹2000</button>
+                    <button type="button" onclick="setPresetAmount(3000)" class="py-1.5 px-2 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg border border-blue-200 transition">₹3000</button>
+                    <button type="button" onclick="setPresetAmount(4000)" class="py-1.5 px-2 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg border border-blue-200 transition">₹4000</button>
+                </div>
+
+                <!-- Summary Breakdown Card -->
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/80 space-y-2 text-sm">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Base Amount:</span>
+                        <span class="font-semibold text-gray-800">₹<span id="dispBase">0.00</span></span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span class="flex items-center gap-1">
+                            Service / Convenience Fee (1%)
+                            <i class="fa-solid fa-circle-info text-xs text-gray-400" title="1% processing fee"></i>
+                        </span>
+                        <span class="font-semibold text-gray-800">₹<span id="dispFee">0.00</span></span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-2 mt-2 flex justify-between items-center">
+                        <span class="font-semibold text-gray-700">Receipt Total Amount:</span>
+                        <span class="font-bold text-lg text-blue-600">₹<span id="dispTotal">0.00</span></span>
+                    </div>
+                </div>
+
+                <!-- Primary Action: Pay via UPI (Base Amount Only) -->
+                <button type="button" onclick="payViaUPI()" 
+                    class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-qrcode text-lg"></i>
+                    <span>Pay via UPI App (Base Amount)</span>
+                </button>
+
+                <!-- Divider -->
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="flex-shrink mx-3 text-xs text-gray-400 font-medium">OR CONFIRM TRANSFER</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
+                </div>
+
+                <!-- Secondary Action: Simulate Successful Payment & Show Full Receipt -->
+                <button type="button" onclick="confirmAndShowReceipt()" 
+                    class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-circle-check text-lg"></i>
+                    <span>Payment Successful (Show Receipt)</span>
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Receipt Modal -->
+    <div id="receiptModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-scale-up border border-gray-100">
+            
+            <!-- Receipt Header -->
+            <div class="bg-emerald-600 text-white p-6 text-center relative">
+                <button onclick="closeReceipt()" class="absolute top-4 right-4 text-white/80 hover:text-white text-xl focus:outline-none">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-white/30">
+                    <i class="fa-solid fa-check text-3xl text-white"></i>
+                </div>
+                <h2 class="text-xl font-bold tracking-wide">Payment Successful</h2>
+                <p class="text-emerald-100 text-xs mt-1">Transaction Completed</p>
+            </div>
+
+            <!-- Receipt Details Content -->
+            <div id="receiptContent" class="p-6 space-y-4">
+                <div class="text-center pb-4 border-b border-dashed border-gray-200">
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">Total Receipt Amount</span>
+                    <div class="text-3xl font-extrabold text-gray-900 mt-1">₹<span id="rcptTotal">0.00</span></div>
+                </div>
+
+                <div class="space-y-2.5 text-xs sm:text-sm">
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="text-gray-500">Recipient Mobile:</span>
+                        <span id="rcptMobile" class="font-semibold text-gray-800"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="text-gray-500">Recipient UPI Handle:</span>
+                        <span id="rcptUpiId" class="font-semibold text-blue-600"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="text-gray-500">Transaction ID (UTR):</span>
+                        <span id="rcptUtr" class="font-mono text-gray-800 text-xs font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="text-gray-500">Date & Time:</span>
+                        <span id="rcptDateTime" class="text-gray-800 font-medium"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-600">
+                        <span class="text-gray-500">Status:</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <i class="fa-solid fa-circle text-[8px]"></i> SUCCESS
+                        </span>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-3 mt-3 space-y-1.5">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Base Amount Debited:</span>
+                            <span class="font-medium text-gray-800">₹<span id="rcptBase">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Convenience Charge:</span>
+                            <span class="font-medium text-gray-800">₹<span id="rcptFee">0.00</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Buttons -->
+                <div class="pt-2 space-y-2">
+                    <button onclick="window.print()" class="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-medium text-xs rounded-xl shadow transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Print / Download Receipt</span>
+                    </button>
+                    <button onclick="closeReceipt()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-xs rounded-xl transition">
+                        Done
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Application Logic Scripts -->
+    <script>
+        // Default selected UPI provider suffix
+        let selectedSuffix = '@ybl';
+
+        // Preset Amount Selection Helper
+        function setPresetAmount(amt) {
+            document.getElementById('baseAmount').value = amt;
+            validateAndCalculate();
+        }
+
+        // Change selected app handle suffix (@ybl, @okaxis, @paytm, @upi)
+        function selectHandleSuffix(suffix) {
+            selectedSuffix = suffix;
+            updateSuffixButtonStyles();
+            validateAndCalculate();
+        }
+
+        function updateSuffixButtonStyles() {
+            const suffixes = ['@ybl', '@okaxis', '@paytm', '@upi'];
+            suffixes.forEach(s => {
+                const btnKey = 'btn-' + s.replace('@', '');
+                const btn = document.getElementById(btnKey);
+                if (btn) {
+                    if (s === selectedSuffix) {
+                        btn.className = "py-1 px-1 text-[11px] font-bold rounded bg-blue-600 text-white border border-blue-600 shadow-sm transition";
+                    } else {
+                        btn.className = "py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm";
+                    }
+                }
+            });
+        }
+
+        // Live Validation, Auto UPI Generation & Calculation Logic
+        function validateAndCalculate() {
+            const mobileInput = document.getElementById('mobileNumber');
+            const baseAmountInput = document.getElementById('baseAmount');
+            const mobileError = document.getElementById('mobileError');
+            const upiContainer = document.getElementById('upiHandleContainer');
+            const upiDisplay = document.getElementById('generatedUpiDisplay');
+
+            // Sanitize mobile input (digits only)
+            mobileInput.value = mobileInput.value.replace(/\D/g, '');
+            const mobileVal = mobileInput.value.trim();
+
+            // Auto-generate UPI Handle when 10 digits are entered
+            if (mobileVal.length === 10) {
+                mobileError.classList.add('hidden');
+                const generatedUpi = mobileVal + selectedSuffix;
+                upiDisplay.innerText = generatedUpi;
+                upiContainer.classList.remove('hidden');
+                updateSuffixButtonStyles();
+            } else {
+                upiContainer.classList.add('hidden');
+                if (mobileVal.length > 0 && mobileVal.length < 10) {
+                    mobileError.classList.remove('hidden');
+                } else {
+                    mobileError.classList.add('hidden');
+                }
+            }
+
+            // Fee logic: 1% of base amount (e.g. 1000 -> 10, 2000 -> 20, 3000 -> 30, 4000 -> 40)
+            const baseAmt = parseFloat(baseAmountInput.value) || 0;
+            const feeAmt = baseAmt * 0.01;
+            const totalAmt = baseAmt + feeAmt;
+
+            // Update Breakdown Display
+            document.getElementById('dispBase').innerText = baseAmt.toFixed(2);
+            document.getElementById('dispFee').innerText = feeAmt.toFixed(2);
+            document.getElementById('dispTotal').innerText = totalAmt.toFixed(2);
+        }
+
+        // Validate Form Inputs and return transfer data object
+        function getValidatedForm() {
+            const mobile = document.getElementById('mobileNumber').value.trim();
+            const baseAmt = parseFloat(document.getElementById('baseAmount').value) || 0;
+            const mobileError = document.getElementById('mobileError');
+
+            if (!mobile || mobile.length !== 10) {
+                mobileError.classList.remove('hidden');
+                return null;
+            } else {
+                mobileError.classList.add('hidden');
+            }
+
+            if (baseAmt <= 0) {
+                alert("Please enter a valid transfer amount.");
+                return null;
+            }
+
+            const autoGeneratedUpi = mobile + selectedSuffix;
+
+            return {
+                mobile: mobile,
+                upiId: autoGeneratedUpi,
+                baseAmount: baseAmt,
+                feeAmount: baseAmt * 0.01,
+                totalAmount: baseAmt + (baseAmt * 0.01)
+            };
+        }
+
+        // Primary Action: Redirect to UPI App with AUTO-GENERATED RECIPIENT UPI ID & BASE AMOUNT
+        function payViaUPI() {
+            const data = getValidatedForm();
+            if (!data) return;
+
+            // Construct standard UPI intent link addressing the auto-generated recipient UPI handle
+            const payeeName = "Mobile Transfer (" + data.mobile + ")";
+            const transactionNote = "Transfer_" + data.mobile;
+            const upiUrl = `upi://pay?pa=${encodeURIComponent(data.upiId)}&pn=${encodeURIComponent(payeeName)}&am=${data.baseAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
+
+            // Trigger URI redirection to UPI application on mobile
+            window.location.href = upiUrl;
+        }
+
+        // Generate Random Realistic UTR / Transaction ID
+        function generateUTR() {
+            const chars = '0123456789';
+            let utr = '32' + Array.from({length: 10}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+            return utr;
+        }
+
+        // Secondary Action: Open Payment Receipt Modal displaying Total with Fees
+        function confirmAndShowReceipt() {
+            const data = getValidatedForm();
+            if (!data) return;
+
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            }) + ', ' + now.toLocaleTimeString('en-IN', {
+                hour: '2-digit', minute: '2-digit', hour12: true
+            });
+
+            // Populate Modal Fields
+            document.getElementById('rcptTotal').innerText = data.totalAmount.toFixed(2);
+            document.getElementById('rcptBase').innerText = data.baseAmount.toFixed(2);
+            document.getElementById('rcptFee').innerText = data.feeAmount.toFixed(2);
+            document.getElementById('rcptMobile').innerText = "+91 " + data.mobile;
+            document.getElementById('rcptUpiId').innerText = data.upiId;
+            document.getElementById('rcptUtr').innerText = generateUTR();
+            document.getElementById('rcptDateTime').innerText = formattedDate;
+
+            // Show Modal
+            document.getElementById('receiptModal').classList.remove('hidden');
+        }
+
+        // Close Modal
+        function closeReceipt() {
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
