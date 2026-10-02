@@ -82,7 +82,7 @@
       border: 1px solid rgba(203, 213, 225, 0.6);
     }
 
-    /* Light mode text color adjustments */
+    /* Light mode text updates */
     body.light-mode h1 {
       background: linear-gradient(to right, #059669, #0891b2, #d97706);
       -webkit-background-clip: text;
@@ -214,7 +214,7 @@
 
   <!-- Dark Mode / Light Mode Toggle Switch (Top Right Corner) -->
   <div class="fixed top-4 right-4 z-50">
-    <button id="themeToggleBtn" aria-label="Toggle Theme" class="flex items-center gap-2 px-3 py-2 rounded-full glass-card border border-white/20 text-xs font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer">
+    <button id="themeToggleBtn" aria-label="Toggle Theme" class="flex items-center gap-2 px-3.5 py-2 rounded-full glass-card border border-white/20 text-xs font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer">
       <i id="themeIcon" class="fa-solid fa-sun text-amber-400 text-sm"></i>
       <span id="themeText" class="hidden sm:inline">Light Mode</span>
     </button>
@@ -408,7 +408,7 @@
   </footer>
 
   <script>
-    // Global Application State
+    // State variables
     let pdfFile = null;
     let originalSizeBytes = 0;
     let pdfDoc = null;
@@ -445,4 +445,4 @@
 
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
-  
+    // Dark/Light T
