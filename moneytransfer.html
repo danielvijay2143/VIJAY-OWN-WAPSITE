@@ -39,7 +39,7 @@
                 <div>
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid font-bold text-2xl fa-bolt text-amber-300"></i>
-                        <h1 class="text-2xl font-bold tracking-tight">QuickPay</h1>
+                        <h1 class="text-2xl font-bold tracking-tight">Vijay QuickPay</h1>
                     </div>
                     <p class="text-blue-100 text-xs mt-1">Instant Direct Money Transfer</p>
                 </div>
@@ -68,39 +68,6 @@
                     </div>
                     <p id="mobileError" class="text-red-500 text-xs mt-1 hidden">Please enter a valid 10-digit mobile number.</p>
 
-                    <!-- Auto-Generated UPI Handle Preview Card -->
-                    <div id="upiHandleContainer" class="mt-3 p-3 bg-blue-50/70 border border-blue-100 rounded-xl hidden">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-[11px] font-semibold text-blue-700 uppercase tracking-wider flex items-center gap-1">
-                                <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> Auto-Generated UPI Handle
-                            </span>
-                            <span class="text-[10px] bg-blue-200/60 text-blue-800 font-bold px-1.5 py-0.5 rounded">Active</span>
-                        </div>
-                        <div class="text-sm font-bold text-gray-800 break-all flex items-center justify-between">
-                            <span id="generatedUpiDisplay" class="text-blue-900"></span>
-                            <i class="fa-solid fa-circle-check text-emerald-500 text-base"></i>
-                        </div>
-
-                        <!-- Quick App Handle Provider Selectors -->
-                        <div class="mt-2.5 pt-2 border-t border-blue-100">
-                            <span class="text-[10px] text-gray-500 block mb-1 font-medium">Switch Target App Handle:</span>
-                            <div class="grid grid-cols-4 gap-1.5 text-center">
-                                <button type="button" onclick="selectHandleSuffix('@ybl')" id="btn-ybl" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
-                                    PhonePe
-                                </button>
-                                <button type="button" onclick="selectHandleSuffix('@okaxis')" id="btn-okaxis" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
-                                    GPay
-                                </button>
-                                <button type="button" onclick="selectHandleSuffix('@paytm')" id="btn-paytm" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
-                                    Paytm
-                                </button>
-                                <button type="button" onclick="selectHandleSuffix('@upi')" id="btn-upi" class="py-1 px-1 text-[11px] font-semibold rounded bg-white text-gray-700 border border-gray-200 hover:border-blue-400 transition shadow-sm">
-                                    BHIM
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Base Amount Input -->
                 <div>
@@ -144,25 +111,13 @@
                     </div>
                 </div>
 
-                <!-- Primary Action: Pay via UPI (Base Amount Only) -->
-                <button type="button" onclick="payViaUPI()" 
-                    class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-qrcode text-lg"></i>
-                    <span>Pay via UPI App (Base Amount)</span>
-                </button>
 
-                <!-- Divider -->
-                <div class="relative flex py-1 items-center">
-                    <div class="flex-grow border-t border-gray-200"></div>
-                    <span class="flex-shrink mx-3 text-xs text-gray-400 font-medium">OR CONFIRM TRANSFER</span>
-                    <div class="flex-grow border-t border-gray-200"></div>
-                </div>
 
                 <!-- Secondary Action: Simulate Successful Payment & Show Full Receipt -->
                 <button type="button" onclick="confirmAndShowReceipt()" 
                     class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-circle-check text-lg"></i>
-                    <span>Payment Successful (Show Receipt)</span>
+                    <span>Payment Receipt</span>
                 </button>
 
             </form>
@@ -288,21 +243,7 @@
             mobileInput.value = mobileInput.value.replace(/\D/g, '');
             const mobileVal = mobileInput.value.trim();
 
-            // Auto-generate UPI Handle when 10 digits are entered
-            if (mobileVal.length === 10) {
-                mobileError.classList.add('hidden');
-                const generatedUpi = mobileVal + selectedSuffix;
-                upiDisplay.innerText = generatedUpi;
-                upiContainer.classList.remove('hidden');
-                updateSuffixButtonStyles();
-            } else {
-                upiContainer.classList.add('hidden');
-                if (mobileVal.length > 0 && mobileVal.length < 10) {
-                    mobileError.classList.remove('hidden');
-                } else {
-                    mobileError.classList.add('hidden');
-                }
-            }
+
 
             // Fee logic: 1% of base amount (e.g. 1000 -> 10, 2000 -> 20, 3000 -> 30, 4000 -> 40)
             const baseAmt = parseFloat(baseAmountInput.value) || 0;
