@@ -24,6 +24,7 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -40,6 +41,13 @@
       background-size: 400% 400%;
       animation: gradientBG 16s ease infinite;
       min-height: 100vh;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    body.light-mode {
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 25%, #fae8ff 50%, #d1fae5 75%, #f8fafc 100%);
+      background-size: 400% 400%;
+      color: #0f172a;
     }
 
     @keyframes gradientBG {
@@ -53,12 +61,103 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: background 0.3s ease, border 0.3s ease;
+    }
+
+    body.light-mode .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
     }
 
     .glass-card {
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.3s ease, border 0.3s ease;
+    }
+
+    body.light-mode .glass-card {
+      background: rgba(241, 245, 249, 0.7);
+      border: 1px solid rgba(203, 213, 225, 0.6);
+    }
+
+    /* Light mode text color adjustments */
+    body.light-mode h1 {
+      background: linear-gradient(to right, #059669, #0891b2, #d97706);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    body.light-mode p, 
+    body.light-mode .text-slate-300, 
+    body.light-mode .text-slate-200 {
+      color: #334155;
+    }
+
+    body.light-mode .text-slate-400 {
+      color: #64748b;
+    }
+
+    body.light-mode .text-slate-500 {
+      color: #475569;
+    }
+
+    body.light-mode #dropZone {
+      background-color: rgba(241, 245, 249, 0.6);
+      border-color: #cbd5e1;
+    }
+
+    body.light-mode #dropZone:hover {
+      background-color: rgba(226, 232, 240, 0.8);
+      border-color: #10b981;
+    }
+
+    body.light-mode #dropZone span.text-slate-200 {
+      color: #0f172a;
+    }
+
+    body.light-mode #fileNameText {
+      color: #0f172a;
+    }
+
+    body.light-mode #statOriginalSize {
+      color: #b45309;
+    }
+
+    body.light-mode #statCompressedSize {
+      color: #047857;
+    }
+
+    body.light-mode #statSpaceSaved {
+      color: #0e7490;
+    }
+
+    body.light-mode #comparisonBox {
+      background-color: rgba(241, 245, 249, 0.9);
+    }
+
+    body.light-mode #changeFileBtn,
+    body.light-mode #prevPageBtn,
+    body.light-mode #nextPageBtn {
+      background-color: #e2e8f0;
+      color: #1e293b;
+    }
+
+    body.light-mode #changeFileBtn:hover,
+    body.light-mode #prevPageBtn:hover,
+    body.light-mode #nextPageBtn:hover {
+      background-color: #cbd5e1;
+    }
+
+    body.light-mode #percentInputBox {
+      background-color: #ffffff;
+      color: #047857;
+      border-color: #10b981;
+    }
+
+    body.light-mode footer {
+      color: #64748b;
     }
 
     /* Custom range slider thumb styling */
@@ -93,7 +192,7 @@
 
     @keyframes pulseGlow {
       0% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
-      100% { shadow: 0 0 35px rgba(16, 185, 129, 0.8); }
+      100% { box-shadow: 0 0 35px rgba(16, 185, 129, 0.8); }
     }
 
     .spinner {
@@ -111,7 +210,15 @@
   </style>
 </head>
 
-<body class="text-slate-100 font-sans antialiased p-3 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-screen">
+<body class="text-slate-100 font-sans antialiased p-3 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-screen relative">
+
+  <!-- Dark Mode / Light Mode Toggle Switch (Top Right Corner) -->
+  <div class="fixed top-4 right-4 z-50">
+    <button id="themeToggleBtn" aria-label="Toggle Theme" class="flex items-center gap-2 px-3 py-2 rounded-full glass-card border border-white/20 text-xs font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer">
+      <i id="themeIcon" class="fa-solid fa-sun text-amber-400 text-sm"></i>
+      <span id="themeText" class="hidden sm:inline">Light Mode</span>
+    </button>
+  </div>
 
   <header class="text-center max-w-4xl w-full mb-6">
     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold mb-3 shadow-lg backdrop-blur-md">
@@ -185,19 +292,19 @@
 
         <!-- Quick Percentage Preset Buttons -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
-          <button data-percent="25" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-emerald-400 text-center transition-all active:scale-95">
+          <button data-percent="25" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-emerald-400 text-center transition-all active:scale-95 cursor-pointer">
             <div class="text-xs text-slate-400 font-medium">Low</div>
             <div class="text-base font-extrabold text-white">25%</div>
           </button>
-          <button data-percent="50" class="preset-btn px-4 py-3 rounded-xl glass-card border-2 border-emerald-500 bg-emerald-500/10 text-center transition-all active:scale-95">
+          <button data-percent="50" class="preset-btn px-4 py-3 rounded-xl glass-card border-2 border-emerald-500 bg-emerald-500/10 text-center transition-all active:scale-95 cursor-pointer">
             <div class="text-xs text-emerald-300 font-medium">Balanced</div>
             <div class="text-base font-extrabold text-emerald-300">50%</div>
           </button>
-          <button data-percent="75" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-pink-400 text-center transition-all active:scale-95">
+          <button data-percent="75" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-pink-400 text-center transition-all active:scale-95 cursor-pointer">
             <div class="text-xs text-slate-400 font-medium">Strong</div>
             <div class="text-base font-extrabold text-white">75%</div>
           </button>
-          <button data-percent="90" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-purple-400 text-center transition-all active:scale-95">
+          <button data-percent="90" class="preset-btn px-4 py-3 rounded-xl glass-card border border-slate-700 hover:border-purple-400 text-center transition-all active:scale-95 cursor-pointer">
             <div class="text-xs text-slate-400 font-medium">Extreme</div>
             <div class="text-base font-extrabold text-white">90%</div>
           </button>
@@ -271,9 +378,9 @@
             <i class="fa-solid fa-eye text-cyan-400"></i> Compressed PDF Page Preview
           </label>
           <div id="pageNavControls" class="hidden items-center gap-2">
-            <button id="prevPageBtn" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+            <button id="prevPageBtn" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center cursor-pointer"><i class="fa-solid fa-chevron-left"></i></button>
             <span id="previewPageNumText" class="text-[11px] text-slate-300 font-mono font-bold">Page 1 / 1</span>
-            <button id="nextPageBtn" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+            <button id="nextPageBtn" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center cursor-pointer"><i class="fa-solid fa-chevron-right"></i></button>
           </div>
         </div>
         <div class="glass-card p-4 rounded-2xl border border-slate-700/60 flex items-center justify-center bg-slate-950/70 min-h-[220px]">
@@ -306,7 +413,6 @@
     let originalSizeBytes = 0;
     let pdfDoc = null;
     let processedPdfBytes = null;
-    let estimatedCompressedBytes = 0;
     let currentPreviewPage = 1;
 
     // DOM References
@@ -339,270 +445,4 @@
 
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
-    // Utility: Bytes Formatter
-    function formatBytes(bytes) {
-      if (!bytes || bytes <= 0) return '0 KB';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-
-    // Drag & Drop Handlers
-    ['dragenter', 'dragover'].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        dropZone.classList.add('border-emerald-400', 'bg-slate-900/80');
-      }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('border-emerald-400', 'bg-slate-900/80');
-      }, false);
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-      if (files && files[0] && files[0].type === 'application/pdf') {
-        handlePdfSelection(files[0]);
-      } else {
-        alert('Please select a valid PDF file.');
-      }
-    });
-
-    pdfFileInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handlePdfSelection(e.target.files[0]);
-      }
-    });
-
-    changeFileBtn.addEventListener('click', () => {
-      pdfFile = null;
-      processedPdfBytes = null;
-      pdfFileInput.value = '';
-      uploadSection.classList.remove('hidden');
-      editorSection.classList.add('hidden');
-      editorSection.classList.remove('flex');
-    });
-
-    // Handle Uploaded PDF
-    async function handlePdfSelection(file) {
-      pdfFile = file;
-      originalSizeBytes = file.size;
-
-      fileNameText.textContent = file.name;
-      originalSizeText.textContent = `Original: ${formatBytes(originalSizeBytes)}`;
-      statOriginalSize.textContent = formatBytes(originalSizeBytes);
-
-      uploadSection.classList.add('hidden');
-      editorSection.classList.remove('hidden');
-      editorSection.classList.add('flex');
-
-      // Load PDF metadata using PDF.js
-      const arrayBuffer = await file.arrayBuffer();
-      pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      pageCountText.innerHTML = `<i class="fa-solid fa-layer-group text-cyan-400"></i> ${pdfDoc.numPages} ${pdfDoc.numPages === 1 ? 'Page' : 'Pages'}`;
-
-      // Reset Output States
-      downloadPdfBtn.disabled = true;
-      previewCanvas.classList.add('hidden');
-      previewPlaceholder.classList.remove('hidden');
-      pageNavControls.classList.add('hidden');
-      currentPreviewPage = 1;
-
-      syncPercentageValue(50, 'preset');
-      processPDF();
-    }
-
-    function syncPercentageValue(value, source) {
-      let val = parseInt(value);
-      if (isNaN(val)) val = 50;
-      if (val < 1) val = 1;
-      if (val > 99) val = 99;
-
-      if (source !== 'slider') compressionSlider.value = val;
-      if (source !== 'inputBox') percentInputBox.value = val;
-
-      // Update preset buttons styling
-      presetBtns.forEach(btn => {
-        const btnVal = parseInt(btn.dataset.percent);
-        if (btnVal === val) {
-          btn.classList.remove('border-slate-700');
-          btn.classList.add('border-2', 'border-emerald-500', 'bg-emerald-500/10');
-        } else {
-          btn.classList.remove('border-2', 'border-emerald-500', 'bg-emerald-500/10');
-          btn.classList.add('border-slate-700');
-        }
-      });
-    }
-
-    // Slider Input Event
-    compressionSlider.addEventListener('input', (e) => {
-      syncPercentageValue(e.target.value, 'slider');
-    });
-
-    // Manual Entry Number Box Event
-    percentInputBox.addEventListener('input', (e) => {
-      syncPercentageValue(e.target.value, 'inputBox');
-    });
-
-    percentInputBox.addEventListener('blur', (e) => {
-      syncPercentageValue(e.target.value, 'inputBox');
-    });
-
-    // Preset Buttons Click Events
-    presetBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const val = parseInt(btn.dataset.percent);
-        syncPercentageValue(val, 'preset');
-      });
-    });
-
-    compressProcessBtn.addEventListener('click', () => {
-      processPDF();
-    });
-
-    async function processPDF() {
-      if (!pdfFile || !pdfDoc) return;
-
-      const originalBtnText = compressProcessBtn.innerHTML;
-      compressProcessBtn.innerHTML = `<div class="spinner"></div><span>Compressing...</span>`;
-      compressProcessBtn.disabled = true;
-
-      try {
-        const targetPercent = parseInt(percentInputBox.value) || 50;
-        
-        // Quality formula: Higher percentage reduction -> Lower JPEG quality
-        const jpegQuality = Math.max(0.08, Math.min(0.92, (100 - targetPercent) / 100));
-        const renderScale = targetPercent > 60 ? 1.2 : 1.5;
-
-        const { PDFDocument } = PDFLib;
-        const newPdfDoc = await PDFDocument.create();
-
-        const numPages = pdfDoc.numPages;
-
-        for (let i = 1; i <= numPages; i++) {
-          const page = await pdfDoc.getPage(i);
-          const viewport = page.getViewport({ scale: renderScale });
-
-          // Render PDF Page onto offscreen Canvas
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          await page.render({
-            canvasContext: context,
-            viewport: viewport
-          }).promise;
-
-          // Convert Canvas to JPEG Data URL with requested compression quality
-          const jpegDataUrl = canvas.toDataURL('image/jpeg', jpegQuality);
-          const jpegImageBytes = await fetch(jpegDataUrl).then(res => res.arrayBuffer());
-
-          // Re-embed into brand new PDF document
-          const embeddedImage = await newPdfDoc.embedJpg(jpegImageBytes);
-          const newPage = newPdfDoc.addPage([viewport.width / renderScale, viewport.height / renderScale]);
-          
-          newPage.drawImage(embeddedImage, {
-            x: 0,
-            y: 0,
-            width: newPage.getWidth(),
-            height: newPage.getHeight(),
-          });
-        }
-
-        // Save generated PDF bytes
-        processedPdfBytes = await newPdfDoc.save();
-        estimatedCompressedBytes = processedPdfBytes.byteLength;
-
-        // Calculate size stats
-        const spaceSavedBytes = Math.max(0, originalSizeBytes - estimatedCompressedBytes);
-        const savedPercent = Math.max(0, Math.round((spaceSavedBytes / originalSizeBytes) * 100));
-
-        statCompressedSize.textContent = formatBytes(estimatedCompressedBytes);
-        statSpaceSaved.textContent = formatBytes(spaceSavedBytes);
-        savedPercentBadge.textContent = `${savedPercent}% Saved`;
-
-        // Render Page Preview
-        await renderPagePreview(currentPreviewPage);
-
-        if (numPages > 1) {
-          pageNavControls.classList.remove('hidden');
-          pageNavControls.classList.add('flex');
-          previewPageNumText.textContent = `Page ${currentPreviewPage} / ${numPages}`;
-        } else {
-          pageNavControls.classList.add('hidden');
-        }
-
-        downloadPdfBtn.disabled = false;
-
-      } catch (err) {
-        console.error('Compression Error:', err);
-        alert('An error occurred during PDF compression. Please try another file.');
-      } finally {
-        compressProcessBtn.innerHTML = originalBtnText;
-        compressProcessBtn.disabled = false;
-      }
-    }
-
-    // Render Preview Thumbnail
-    async function renderPagePreview(pageNum) {
-      if (!pdfDoc) return;
-      const page = await pdfDoc.getPage(pageNum);
-      const viewport = page.getViewport({ scale: 1.0 });
-
-      const prevCtx = previewCanvas.getContext('2d');
-      previewCanvas.width = viewport.width;
-      previewCanvas.height = viewport.height;
-
-      await page.render({
-        canvasContext: prevCtx,
-        viewport: viewport
-      }).promise;
-
-      previewCanvas.classList.remove('hidden');
-      previewPlaceholder.classList.add('hidden');
-    }
-
-    // Page Navigator Events
-    prevPageBtn.addEventListener('click', async () => {
-      if (currentPreviewPage > 1) {
-        currentPreviewPage--;
-        await renderPagePreview(currentPreviewPage);
-        previewPageNumText.textContent = `Page ${currentPreviewPage} / ${pdfDoc.numPages}`;
-      }
-    });
-
-    nextPageBtn.addEventListener('click', async () => {
-      if (pdfDoc && currentPreviewPage < pdfDoc.numPages) {
-        currentPreviewPage++;
-        await renderPagePreview(currentPreviewPage);
-        previewPageNumText.textContent = `Page ${currentPreviewPage} / ${pdfDoc.numPages}`;
-      }
-    });
-
-    // Download Button Handler
-    downloadPdfBtn.addEventListener('click', () => {
-      if (!processedPdfBytes) return;
-
-      const blob = new Blob([processedPdfBytes], { type: 'application/pdf' });
-      const downloadUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      
-      const originalName = pdfFile.name.replace(/\.[^/.]+$/, "");
-      link.href = downloadUrl;
-      link.download = `${originalName}_compressed.pdf`;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(downloadUrl);
-    });
-  </script>
-</body>
-</html>
-```
+  
