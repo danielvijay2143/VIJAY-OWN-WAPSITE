@@ -665,7 +665,7 @@
       color: var(--muted);
 
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 850;
 
       transition:
         transform 0.2s ease,
@@ -1305,7 +1305,7 @@
     }
 
     /* =========================================================
-       ADMIN MODAL
+       ADMIN MODAL & DRAG CONTROLS
        ========================================================= */
 
     .admin-modal {
@@ -1337,7 +1337,7 @@
 
     .admin-item {
       display: grid;
-      grid-template-columns: 44px 1fr auto;
+      grid-template-columns: auto 44px 1fr auto;
       align-items: center;
       gap: 12px;
 
@@ -1347,6 +1347,28 @@
       border-radius: 13px;
 
       background: var(--input-bg);
+
+      transition: opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .admin-item.dragging {
+      opacity: 0.4;
+      background: var(--surface-hover);
+    }
+
+    .drag-handle {
+      cursor: grab;
+      font-size: 16px;
+      color: var(--muted);
+      user-select: none;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
     }
 
     .admin-item-icon {
@@ -1383,7 +1405,8 @@
 
     .admin-item-actions {
       display: flex;
-      gap: 7px;
+      gap: 5px;
+      align-items: center;
     }
 
     .small-btn {
@@ -1403,6 +1426,20 @@
 
     .small-btn.edit {
       color: var(--primary);
+    }
+
+    .small-btn.delete {
+      color: var(--danger);
+    }
+
+    .small-btn.move {
+      padding: 0 8px;
+      font-size: 12px;
+    }
+
+    .small-btn.delete:hover {
+      background: color-mix(in srgb, var(--danger) 15%, transparent);
+      border-color: var(--danger);
     }
 
     .admin-note {
@@ -1562,11 +1599,13 @@
       }
 
       .admin-item {
-        grid-template-columns: 40px 1fr;
+        grid-template-columns: auto 40px 1fr;
       }
 
       .admin-item-actions {
-        grid-column: 2;
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        margin-top: 6px;
       }
 
       .form-actions {
@@ -1822,7 +1861,7 @@
         </h2>
 
         <p class="login-description">
-          Sign in to add new services or edit existing service details.
+          Sign in to add new services, edit details, reorder or delete existing services.
         </p>
 
         <form id="loginForm">
@@ -1919,7 +1958,7 @@
           </div>
 
           <div class="modal-subtitle">
-            Add or edit service directory entries
+            Manage, edit, move, or remove service directory entries
           </div>
         </div>
 
@@ -2171,11 +2210,6 @@
   <script>
     /* =========================================================
        ADMIN LOGIN
-       =========================================================
-       NOTE:
-       This is client-side authentication only.
-       For real production security, use a backend authentication
-       system and never store admin credentials in front-end JS.
        ========================================================= */
 
     const ADMIN_USERNAME = "VIJAY";
@@ -2193,11 +2227,6 @@
        ========================================================= */
 
     const defaultServices = [
-
-      /* =======================================================
-         GOVERNMENT
-         ======================================================= */
-
       {
         id: "gov-001",
         name: "Tamil Nadu Government Portal",
@@ -2206,7 +2235,6 @@
         icon: "🏛️",
         url: "https://www.tn.gov.in/"
       },
-
       {
         id: "gov-002",
         name: "Tamil Nadu Government Departments",
@@ -2215,7 +2243,6 @@
         icon: "🏢",
         url: "https://www.tn.gov.in/department"
       },
-
       {
         id: "gov-003",
         name: "Tamil Nadu Districts",
@@ -2224,7 +2251,6 @@
         icon: "📍",
         url: "https://www.tn.gov.in/district"
       },
-
       {
         id: "gov-004",
         name: "TN e-Sevai Citizen Portal",
@@ -2233,11 +2259,6 @@
         icon: "💻",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
-      /* =======================================================
-         E-SEVAI
-         ======================================================= */
-
       {
         id: "esevai-001",
         name: "Community Certificate",
@@ -2246,7 +2267,6 @@
         icon: "📜",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-002",
         name: "Income Certificate",
@@ -2255,7 +2275,6 @@
         icon: "💰",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-003",
         name: "Nativity Certificate",
@@ -2264,7 +2283,6 @@
         icon: "📄",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-004",
         name: "OBC Certificate",
@@ -2273,7 +2291,6 @@
         icon: "🪪",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-005",
         name: "First Graduate Certificate",
@@ -2282,7 +2299,6 @@
         icon: "🎓",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-006",
         name: "Legal Heir Certificate",
@@ -2291,7 +2307,6 @@
         icon: "📑",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-007",
         name: "Widow Certificate",
@@ -2300,7 +2315,6 @@
         icon: "📋",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-008",
         name: "Solvency Certificate",
@@ -2309,7 +2323,6 @@
         icon: "💳",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-009",
         name: "Small / Marginal Farmer Certificate",
@@ -2318,7 +2331,6 @@
         icon: "🌾",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-010",
         name: "Unemployment Certificate",
@@ -2327,7 +2339,6 @@
         icon: "📃",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
       {
         id: "esevai-011",
         name: "No Male Child Certificate",
@@ -2336,11 +2347,6 @@
         icon: "📝",
         url: "https://www.tnesevai.tn.gov.in/Citizen/"
       },
-
-      /* =======================================================
-         LAND & REGISTRATION
-         ======================================================= */
-
       {
         id: "land-001",
         name: "Tamil Nadu Land Records",
@@ -2349,7 +2355,6 @@
         icon: "🌱",
         url: "https://eservices.tn.gov.in/"
       },
-
       {
         id: "land-002",
         name: "Patta / Chitta",
@@ -2358,7 +2363,6 @@
         icon: "📜",
         url: "https://eservices.tn.gov.in/"
       },
-
       {
         id: "land-003",
         name: "A-Register",
@@ -2367,7 +2371,6 @@
         icon: "📚",
         url: "https://eservices.tn.gov.in/"
       },
-
       {
         id: "land-004",
         name: "FMB Sketch",
@@ -2376,7 +2379,6 @@
         icon: "📐",
         url: "https://eservices.tn.gov.in/"
       },
-
       {
         id: "land-005",
         name: "Patta Transfer",
@@ -2385,7 +2387,6 @@
         icon: "🔄",
         url: "https://eservices.tn.gov.in/"
       },
-
       {
         id: "land-006",
         name: "TNREGINET",
@@ -2394,7 +2395,6 @@
         icon: "🏠",
         url: "https://tnreginet.gov.in/"
       },
-
       {
         id: "land-007",
         name: "Encumbrance Certificate",
@@ -2403,7 +2403,6 @@
         icon: "📄",
         url: "https://tnreginet.gov.in/"
       },
-
       {
         id: "land-008",
         name: "Guideline Value",
@@ -2412,7 +2411,6 @@
         icon: "💵",
         url: "https://tnreginet.gov.in/"
       },
-
       {
         id: "land-009",
         name: "Document Registration",
@@ -2421,7 +2419,6 @@
         icon: "🗂️",
         url: "https://tnreginet.gov.in/"
       },
-
       {
         id: "land-010",
         name: "Marriage Registration",
@@ -2430,11 +2427,6 @@
         icon: "💍",
         url: "https://tnreginet.gov.in/"
       },
-
-      /* =======================================================
-         RATION
-         ======================================================= */
-
       {
         id: "ration-001",
         name: "TNPDS Smart Card",
@@ -2443,7 +2435,6 @@
         icon: "🪪",
         url: "https://www.tnpds.gov.in/"
       },
-
       {
         id: "ration-002",
         name: "Smart Card Status",
@@ -2452,7 +2443,6 @@
         icon: "💳",
         url: "https://www.tnpds.gov.in/"
       },
-
       {
         id: "ration-003",
         name: "Family Card Services",
@@ -2461,7 +2451,6 @@
         icon: "👨‍👩‍👧‍👦",
         url: "https://www.tnpds.gov.in/"
       },
-
       {
         id: "ration-004",
         name: "Add / Remove Family Member",
@@ -2470,7 +2459,6 @@
         icon: "➕",
         url: "https://www.tnpds.gov.in/"
       },
-
       {
         id: "ration-005",
         name: "Family Card Address Services",
@@ -2479,7 +2467,6 @@
         icon: "🏠",
         url: "https://www.tnpds.gov.in/"
       },
-
       {
         id: "ration-006",
         name: "Ration Shop / FPS Services",
@@ -2488,11 +2475,6 @@
         icon: "🛒",
         url: "https://www.tnpds.gov.in/"
       },
-
-      /* =======================================================
-         POLICE
-         ======================================================= */
-
       {
         id: "police-001",
         name: "Tamil Nadu Police e-Services",
@@ -2501,7 +2483,6 @@
         icon: "👮",
         url: "https://eservices.tnpolice.gov.in/"
       },
-
       {
         id: "police-002",
         name: "Online Police Complaint",
@@ -2510,7 +2491,6 @@
         icon: "📝",
         url: "https://eservices.tnpolice.gov.in/"
       },
-
       {
         id: "police-003",
         name: "FIR Status",
@@ -2519,7 +2499,6 @@
         icon: "📋",
         url: "https://eservices.tnpolice.gov.in/"
       },
-
       {
         id: "police-004",
         name: "Police Verification",
@@ -2528,7 +2507,6 @@
         icon: "🔍",
         url: "https://eservices.tnpolice.gov.in/"
       },
-
       {
         id: "police-005",
         name: "CSR / Petition Status",
@@ -2537,11 +2515,6 @@
         icon: "📑",
         url: "https://eservices.tnpolice.gov.in/"
       },
-
-      /* =======================================================
-         TRANSPORT
-         ======================================================= */
-
       {
         id: "transport-001",
         name: "Parivahan Sewa",
@@ -2550,7 +2523,6 @@
         icon: "🚗",
         url: "https://parivahan.gov.in/"
       },
-
       {
         id: "transport-002",
         name: "Driving Licence Services",
@@ -2559,7 +2531,6 @@
         icon: "🪪",
         url: "https://parivahan.gov.in/"
       },
-
       {
         id: "transport-003",
         name: "Learner Licence",
@@ -2568,7 +2539,6 @@
         icon: "🚘",
         url: "https://parivahan.gov.in/"
       },
-
       {
         id: "transport-004",
         name: "Vehicle Registration",
@@ -2577,7 +2547,6 @@
         icon: "🚙",
         url: "https://parivahan.gov.in/"
       },
-
       {
         id: "transport-005",
         name: "RC Services",
@@ -2586,7 +2555,6 @@
         icon: "📘",
         url: "https://parivahan.gov.in/"
       },
-
       {
         id: "transport-006",
         name: "Driving Licence Status",
@@ -2595,7 +2563,6 @@
         icon: "🔎",
         url: "https://parivahan.gov.in/"
       },
-
       {
         id: "transport-007",
         name: "e-Challan",
@@ -2604,11 +2571,6 @@
         icon: "⚠️",
         url: "https://echallan.parivahan.gov.in/"
       },
-
-      /* =======================================================
-         ID & CITIZEN
-         ======================================================= */
-
       {
         id: "id-001",
         name: "Voter Services",
@@ -2617,7 +2579,6 @@
         icon: "🗳️",
         url: "https://voters.eci.gov.in/"
       },
-
       {
         id: "id-002",
         name: "Electoral Search",
@@ -2626,7 +2587,6 @@
         icon: "🔎",
         url: "https://electoralsearch.eci.gov.in/"
       },
-
       {
         id: "id-003",
         name: "Aadhaar Services",
@@ -2635,7 +2595,6 @@
         icon: "🪪",
         url: "https://uidai.gov.in/"
       },
-
       {
         id: "id-004",
         name: "My Aadhaar",
@@ -2644,7 +2603,6 @@
         icon: "👤",
         url: "https://myaadhaar.uidai.gov.in/"
       },
-
       {
         id: "id-005",
         name: "Income Tax e-Filing",
@@ -2653,7 +2611,6 @@
         icon: "💰",
         url: "https://www.incometax.gov.in/"
       },
-
       {
         id: "id-006",
         name: "PAN Related Services",
@@ -2662,7 +2619,6 @@
         icon: "💳",
         url: "https://www.incometax.gov.in/"
       },
-
       {
         id: "id-007",
         name: "DigiLocker",
@@ -2671,7 +2627,6 @@
         icon: "📱",
         url: "https://www.digilocker.gov.in/"
       },
-
       {
         id: "id-008",
         name: "Passport Seva",
@@ -2680,11 +2635,6 @@
         icon: "🛂",
         url: "https://www.passportindia.gov.in/"
       },
-
-      /* =======================================================
-         ELECTRICITY
-         ======================================================= */
-
       {
         id: "electricity-001",
         name: "Tamil Nadu Electricity Services",
@@ -2693,7 +2643,6 @@
         icon: "⚡",
         url: "https://www.tnebltd.gov.in/"
       },
-
       {
         id: "electricity-002",
         name: "Electricity Bill Services",
@@ -2702,7 +2651,6 @@
         icon: "💡",
         url: "https://www.tnebltd.gov.in/"
       },
-
       {
         id: "electricity-003",
         name: "New Electricity Connection",
@@ -2711,7 +2659,6 @@
         icon: "🔌",
         url: "https://www.tnebltd.gov.in/"
       },
-
       {
         id: "electricity-004",
         name: "Electricity Complaint",
@@ -2720,11 +2667,6 @@
         icon: "📞",
         url: "https://www.tnebltd.gov.in/"
       },
-
-      /* =======================================================
-         JOBS & EXAMS
-         ======================================================= */
-
       {
         id: "jobs-001",
         name: "TNPSC",
@@ -2733,7 +2675,6 @@
         icon: "🎓",
         url: "https://www.tnpsc.gov.in/"
       },
-
       {
         id: "jobs-002",
         name: "TNPSC Notifications",
@@ -2742,7 +2683,6 @@
         icon: "📢",
         url: "https://www.tnpsc.gov.in/"
       },
-
       {
         id: "jobs-003",
         name: "TNPSC Results",
@@ -2751,7 +2691,6 @@
         icon: "🏆",
         url: "https://www.tnpsc.gov.in/"
       },
-
       {
         id: "jobs-004",
         name: "TNPSC Hall Ticket",
@@ -2760,7 +2699,6 @@
         icon: "🎫",
         url: "https://www.tnpsc.gov.in/"
       },
-
       {
         id: "jobs-005",
         name: "Tamil Nadu Employment Portal",
@@ -2769,7 +2707,6 @@
         icon: "💼",
         url: "https://tnvelaivaaippu.gov.in/"
       },
-
       {
         id: "jobs-006",
         name: "Employment Registration",
@@ -2778,11 +2715,6 @@
         icon: "📝",
         url: "https://tnvelaivaaippu.gov.in/"
       },
-
-      /* =======================================================
-         LOCAL SERVICES
-         ======================================================= */
-
       {
         id: "local-001",
         name: "Greater Chennai Corporation",
@@ -2791,7 +2723,6 @@
         icon: "🏙️",
         url: "https://chennaicorporation.gov.in/"
       },
-
       {
         id: "local-002",
         name: "Chennai Metro Water",
@@ -2800,7 +2731,6 @@
         icon: "💧",
         url: "https://chennaimetrowater.tn.gov.in/"
       },
-
       {
         id: "local-003",
         name: "Chennai Civic Services",
@@ -2809,11 +2739,6 @@
         icon: "🏛️",
         url: "https://chennaicorporation.gov.in/"
       },
-
-      /* =======================================================
-         EDUCATION
-         ======================================================= */
-
       {
         id: "education-001",
         name: "Directorate of Government Examinations",
@@ -2822,7 +2747,6 @@
         icon: "📚",
         url: "https://www.dge.tn.gov.in/"
       },
-
       {
         id: "education-002",
         name: "Government Examination Information",
@@ -2831,11 +2755,6 @@
         icon: "📝",
         url: "https://www.dge.tn.gov.in/"
       },
-
-      /* =======================================================
-         OTHER
-         ======================================================= */
-
       {
         id: "other-001",
         name: "National Government Services",
@@ -2844,7 +2763,6 @@
         icon: "🇮🇳",
         url: "https://www.india.gov.in/"
       },
-
       {
         id: "other-002",
         name: "UMANG",
@@ -2853,7 +2771,6 @@
         icon: "📱",
         url: "https://web.umang.gov.in/"
       }
-
     ];
 
     /* =========================================================
@@ -2864,128 +2781,57 @@
     let currentCategory = "All";
     let currentEditId = null;
     let isAdminLoggedIn = false;
+    let draggedItemIndex = null;
 
     /* =========================================================
        DOM ELEMENTS
        ========================================================= */
 
     const body = document.body;
-
-    const themeToggle =
-      document.getElementById("themeToggle");
-
-    const searchInput =
-      document.getElementById("searchInput");
-
-    const categoryTabs =
-      document.getElementById("categoryTabs");
-
-    const serviceGrid =
-      document.getElementById("serviceGrid");
-
-    const emptyState =
-      document.getElementById("emptyState");
-
-    const serviceCount =
-      document.getElementById("serviceCount");
-
-    const categoryCount =
-      document.getElementById("categoryCount");
-
-    const officialCount =
-      document.getElementById("officialCount");
-
-    const resultCount =
-      document.getElementById("resultCount");
-
-    const currentYear =
-      document.getElementById("currentYear");
+    const themeToggle = document.getElementById("themeToggle");
+    const searchInput = document.getElementById("searchInput");
+    const categoryTabs = document.getElementById("categoryTabs");
+    const serviceGrid = document.getElementById("serviceGrid");
+    const emptyState = document.getElementById("emptyState");
+    const serviceCount = document.getElementById("serviceCount");
+    const categoryCount = document.getElementById("categoryCount");
+    const officialCount = document.getElementById("officialCount");
+    const resultCount = document.getElementById("resultCount");
+    const currentYear = document.getElementById("currentYear");
 
     /* Modals */
-
-    const loginModal =
-      document.getElementById("loginModal");
-
-    const adminModal =
-      document.getElementById("adminModal");
-
-    const serviceFormModal =
-      document.getElementById("serviceFormModal");
+    const loginModal = document.getElementById("loginModal");
+    const adminModal = document.getElementById("adminModal");
+    const serviceFormModal = document.getElementById("serviceFormModal");
 
     /* Login */
-
-    const adminOpenBtn =
-      document.getElementById("adminOpenBtn");
-
-    const loginCloseBtn =
-      document.getElementById("loginCloseBtn");
-
-    const loginCancelBtn =
-      document.getElementById("loginCancelBtn");
-
-    const loginForm =
-      document.getElementById("loginForm");
-
-    const loginError =
-      document.getElementById("loginError");
-
-    const username =
-      document.getElementById("username");
-
-    const password =
-      document.getElementById("password");
+    const adminOpenBtn = document.getElementById("adminOpenBtn");
+    const loginCloseBtn = document.getElementById("loginCloseBtn");
+    const loginCancelBtn = document.getElementById("loginCancelBtn");
+    const loginForm = document.getElementById("loginForm");
+    const loginError = document.getElementById("loginError");
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
 
     /* Admin */
-
-    const adminCloseBtn =
-      document.getElementById("adminCloseBtn");
-
-    const adminSearch =
-      document.getElementById("adminSearch");
-
-    const adminList =
-      document.getElementById("adminList");
-
-    const addServiceBtn =
-      document.getElementById("addServiceBtn");
-
-    const logoutBtn =
-      document.getElementById("logoutBtn");
+    const adminCloseBtn = document.getElementById("adminCloseBtn");
+    const adminSearch = document.getElementById("adminSearch");
+    const adminList = document.getElementById("adminList");
+    const addServiceBtn = document.getElementById("addServiceBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
     /* Service form */
-
-    const serviceFormTitle =
-      document.getElementById("serviceFormTitle");
-
-    const serviceForm =
-      document.getElementById("serviceForm");
-
-    const serviceFormCloseBtn =
-      document.getElementById("serviceFormCloseBtn");
-
-    const serviceFormCancelBtn =
-      document.getElementById("serviceFormCancelBtn");
-
-    const serviceId =
-      document.getElementById("serviceId");
-
-    const serviceName =
-      document.getElementById("serviceName");
-
-    const serviceDescription =
-      document.getElementById("serviceDescription");
-
-    const serviceCategory =
-      document.getElementById("serviceCategory");
-
-    const serviceIcon =
-      document.getElementById("serviceIcon");
-
-    const serviceUrl =
-      document.getElementById("serviceUrl");
-
-    const toast =
-      document.getElementById("toast");
+    const serviceFormTitle = document.getElementById("serviceFormTitle");
+    const serviceForm = document.getElementById("serviceForm");
+    const serviceFormCloseBtn = document.getElementById("serviceFormCloseBtn");
+    const serviceFormCancelBtn = document.getElementById("serviceFormCancelBtn");
+    const serviceId = document.getElementById("serviceId");
+    const serviceName = document.getElementById("serviceName");
+    const serviceDescription = document.getElementById("serviceDescription");
+    const serviceCategory = document.getElementById("serviceCategory");
+    const serviceIcon = document.getElementById("serviceIcon");
+    const serviceUrl = document.getElementById("serviceUrl");
+    const toast = document.getElementById("toast");
 
     /* =========================================================
        UTILITY FUNCTIONS
@@ -3005,23 +2851,16 @@
         "service-" +
         Date.now() +
         "-" +
-        Math.random()
-          .toString(36)
-          .slice(2, 8)
+        Math.random().toString(36).slice(2, 8)
       );
     }
 
     function safeUrl(url) {
       try {
         const parsed = new URL(url);
-
-        if (
-          parsed.protocol !== "http:" &&
-          parsed.protocol !== "https:"
-        ) {
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
           return "#";
         }
-
         return parsed.href;
       } catch {
         return "#";
@@ -3030,22 +2869,10 @@
 
     function loadServices() {
       try {
-        const saved =
-          localStorage.getItem(
-            SERVICES_STORAGE_KEY
-          );
-
-        if (!saved) {
-          return [...defaultServices];
-        }
-
-        const parsed =
-          JSON.parse(saved);
-
-        if (!Array.isArray(parsed)) {
-          return [...defaultServices];
-        }
-
+        const saved = localStorage.getItem(SERVICES_STORAGE_KEY);
+        if (!saved) return [...defaultServices];
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return [...defaultServices];
         return parsed;
       } catch {
         return [...defaultServices];
@@ -3053,10 +2880,7 @@
     }
 
     function saveServices() {
-      localStorage.setItem(
-        SERVICES_STORAGE_KEY,
-        JSON.stringify(services)
-      );
+      localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(services));
     }
 
     function showToast(message) {
@@ -3064,11 +2888,9 @@
       toast.classList.add("show");
 
       clearTimeout(showToast.timer);
-
-      showToast.timer =
-        setTimeout(() => {
-          toast.classList.remove("show");
-        }, 2800);
+      showToast.timer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2800);
     }
 
     /* =========================================================
@@ -3076,42 +2898,23 @@
        ========================================================= */
 
     function loadTheme() {
-      const savedTheme =
-        localStorage.getItem(
-          THEME_STORAGE_KEY
-        );
-
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
       if (savedTheme === "light") {
         body.classList.add("light");
       }
-
       updateThemeButton();
     }
 
     function updateThemeButton() {
-      const isLight =
-        body.classList.contains("light");
-
-      themeToggle.textContent =
-        isLight ? "☀️" : "🌙";
-
-      themeToggle.title =
-        isLight
-          ? "Switch to dark mode"
-          : "Switch to light mode";
+      const isLight = body.classList.contains("light");
+      themeToggle.textContent = isLight ? "☀️" : "🌙";
+      themeToggle.title = isLight ? "Switch to dark mode" : "Switch to light mode";
     }
 
     function toggleTheme() {
       body.classList.toggle("light");
-
-      const isLight =
-        body.classList.contains("light");
-
-      localStorage.setItem(
-        THEME_STORAGE_KEY,
-        isLight ? "light" : "dark"
-      );
-
+      const isLight = body.classList.contains("light");
+      localStorage.setItem(THEME_STORAGE_KEY, isLight ? "light" : "dark");
       updateThemeButton();
     }
 
@@ -3120,56 +2923,31 @@
        ========================================================= */
 
     function getCategories() {
-      const categories =
-        services
-          .map(service => service.category)
-          .filter(Boolean);
-
-      return [
-        "All",
-        ...Array.from(
-          new Set(categories)
-        ).sort((a, b) =>
-          a.localeCompare(b)
-        )
-      ];
+      const categories = services.map(service => service.category).filter(Boolean);
+      return ["All", ...Array.from(new Set(categories)).sort((a, b) => a.localeCompare(b))];
     }
 
     function renderCategories() {
-      const categories =
-        getCategories();
+      const categories = getCategories();
+      categoryTabs.innerHTML = categories
+        .map(category => `
+          <button
+            type="button"
+            class="category-btn ${currentCategory === category ? "active" : ""}"
+            data-category="${escapeHTML(category)}"
+          >
+            ${escapeHTML(category)}
+          </button>
+        `)
+        .join("");
 
-      categoryTabs.innerHTML =
-        categories
-          .map(category => `
-            <button
-              type="button"
-              class="category-btn ${
-                currentCategory === category
-                  ? "active"
-                  : ""
-              }"
-              data-category="${escapeHTML(category)}"
-            >
-              ${escapeHTML(category)}
-            </button>
-          `)
-          .join("");
-
-      categoryTabs
-        .querySelectorAll(".category-btn")
-        .forEach(button => {
-          button.addEventListener(
-            "click",
-            () => {
-              currentCategory =
-                button.dataset.category;
-
-              renderCategories();
-              renderServices();
-            }
-          );
+      categoryTabs.querySelectorAll(".category-btn").forEach(button => {
+        button.addEventListener("click", () => {
+          currentCategory = button.dataset.category;
+          renderCategories();
+          renderServices();
         });
+      });
     }
 
     /* =========================================================
@@ -3177,34 +2955,14 @@
        ========================================================= */
 
     function getFilteredServices() {
-      const search =
-        searchInput.value
-          .trim()
-          .toLowerCase();
+      const search = searchInput.value.trim().toLowerCase();
 
       return services.filter(service => {
+        const categoryMatch = currentCategory === "All" || service.category === currentCategory;
+        if (!categoryMatch) return false;
+        if (!search) return true;
 
-        const categoryMatch =
-          currentCategory === "All" ||
-          service.category ===
-            currentCategory;
-
-        if (!categoryMatch) {
-          return false;
-        }
-
-        if (!search) {
-          return true;
-        }
-
-        const combined = [
-          service.name,
-          service.description,
-          service.category
-        ]
-          .join(" ")
-          .toLowerCase();
-
+        const combined = [service.name, service.description, service.category].join(" ").toLowerCase();
         return combined.includes(search);
       });
     }
@@ -3214,72 +2972,32 @@
        ========================================================= */
 
     function renderServices() {
-      const filtered =
-        getFilteredServices();
+      const filtered = getFilteredServices();
 
-      serviceGrid.innerHTML =
-        filtered
-          .map(service => {
+      serviceGrid.innerHTML = filtered
+        .map(service => {
+          const url = safeUrl(service.url);
+          return `
+            <article class="service-card">
+              <div class="card-top">
+                <div class="service-icon">${escapeHTML(service.icon)}</div>
+                <div class="service-category">${escapeHTML(service.category)}</div>
+              </div>
+              <h3>${escapeHTML(service.name)}</h3>
+              <p>${escapeHTML(service.description)}</p>
+              <div class="card-footer">
+                <div class="official-label">Official Portal</div>
+                <a class="open-btn" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">
+                  Open Service ↗
+                </a>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
 
-            const url =
-              safeUrl(service.url);
-
-            return `
-              <article class="service-card">
-
-                <div class="card-top">
-
-                  <div class="service-icon">
-                    ${escapeHTML(service.icon)}
-                  </div>
-
-                  <div class="service-category">
-                    ${escapeHTML(service.category)}
-                  </div>
-
-                </div>
-
-                <h3>
-                  ${escapeHTML(service.name)}
-                </h3>
-
-                <p>
-                  ${escapeHTML(service.description)}
-                </p>
-
-                <div class="card-footer">
-
-                  <div class="official-label">
-                    Official Portal
-                  </div>
-
-                  <a
-                    class="open-btn"
-                    href="${escapeHTML(url)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Open Service ↗
-                  </a>
-
-                </div>
-
-              </article>
-            `;
-          })
-          .join("");
-
-      emptyState.classList.toggle(
-        "show",
-        filtered.length === 0
-      );
-
-      resultCount.textContent =
-        `Showing ${filtered.length} ${
-          filtered.length === 1
-            ? "service"
-            : "services"
-        }`;
+      emptyState.classList.toggle("show", filtered.length === 0);
+      resultCount.textContent = `Showing ${filtered.length} ${filtered.length === 1 ? "service" : "services"}`;
     }
 
     /* =========================================================
@@ -3287,28 +3005,12 @@
        ========================================================= */
 
     function updateStats() {
-      const categories =
-        new Set(
-          services
-            .map(service => service.category)
-            .filter(Boolean)
-        );
+      const categories = new Set(services.map(service => service.category).filter(Boolean));
+      const official = services.filter(service => /^https?:\/\//i.test(service.url));
 
-      const official =
-        services.filter(service =>
-          /^https?:\/\//i.test(
-            service.url
-          )
-        );
-
-      serviceCount.textContent =
-        services.length;
-
-      categoryCount.textContent =
-        categories.size;
-
-      officialCount.textContent =
-        official.length;
+      serviceCount.textContent = services.length;
+      categoryCount.textContent = categories.size;
+      officialCount.textContent = official.length;
     }
 
     /* =========================================================
@@ -3319,7 +3021,6 @@
       updateStats();
       renderCategories();
       renderServices();
-
       if (isAdminLoggedIn) {
         renderAdminList();
       }
@@ -3331,15 +3032,10 @@
 
     function openLoginModal() {
       loginModal.classList.add("show");
-
       loginError.classList.remove("show");
-
       username.value = "";
       password.value = "";
-
-      setTimeout(() => {
-        username.focus();
-      }, 100);
+      setTimeout(() => username.focus(), 100);
     }
 
     function closeLoginModal() {
@@ -3348,38 +3044,19 @@
 
     function handleLogin(event) {
       event.preventDefault();
+      const enteredUsername = username.value.trim();
+      const enteredPassword = password.value;
 
-      const enteredUsername =
-        username.value.trim();
-
-      const enteredPassword =
-        password.value;
-
-      if (
-        enteredUsername ===
-          ADMIN_USERNAME &&
-        enteredPassword ===
-          ADMIN_PASSWORD
-      ) {
+      if (enteredUsername === ADMIN_USERNAME && enteredPassword === ADMIN_PASSWORD) {
         isAdminLoggedIn = true;
-
         closeLoginModal();
-
         openAdminModal();
-
-        showToast(
-          "Admin login successful."
-        );
-
+        showToast("Admin login successful.");
         loginForm.reset();
-
         return;
       }
 
-      loginError.classList.add(
-        "show"
-      );
-
+      loginError.classList.add("show");
       password.select();
     }
 
@@ -3392,59 +3069,65 @@
         openLoginModal();
         return;
       }
-
       adminModal.classList.add("show");
-
       adminSearch.value = "";
-
       renderAdminList();
     }
 
     function closeAdminModal() {
-      adminModal.classList.remove(
-        "show"
-      );
+      adminModal.classList.remove("show");
     }
 
     function logoutAdmin() {
       isAdminLoggedIn = false;
-
       closeAdminModal();
-
       closeServiceFormModal();
-
-      showToast(
-        "Admin logged out."
-      );
+      showToast("Admin logged out.");
     }
 
     /* =========================================================
-       ADMIN LIST
+       REORDER & MOVE SERVICES
+       ========================================================= */
+
+    function moveService(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= services.length) return;
+
+      const temp = services[index];
+      services[index] = services[newIndex];
+      services[newIndex] = temp;
+
+      saveServices();
+      renderAll();
+    }
+
+    function deleteService(id) {
+      const service = services.find(s => s.id === id);
+      if (!service) return;
+
+      if (confirm(`Are you sure you want to delete "${service.name}"?`)) {
+        services = services.filter(s => s.id !== id);
+        saveServices();
+        renderAll();
+        showToast("Service deleted.");
+      }
+    }
+
+    /* =========================================================
+       ADMIN LIST WITH DRAG AND DROP & MOVE BUTTONS
        ========================================================= */
 
     function renderAdminList() {
-      const query =
-        adminSearch.value
-          .trim()
-          .toLowerCase();
+      const query = adminSearch.value.trim().toLowerCase();
+      const isSearching = query.length > 0;
 
-      const filtered =
-        services.filter(service => {
-
-          if (!query) {
-            return true;
-          }
-
-          const text = [
-            service.name,
-            service.description,
-            service.category
-          ]
-            .join(" ")
-            .toLowerCase();
-
-          return text.includes(query);
-        });
+      const filtered = services.filter(service => {
+        if (!query) return true;
+        return [service.name, service.description, service.category]
+          .join(" ")
+          .toLowerCase()
+          .includes(query);
+      });
 
       if (filtered.length === 0) {
         adminList.innerHTML = `
@@ -3454,14 +3137,25 @@
             <p>Try another search.</p>
           </div>
         `;
-
         return;
       }
 
-      adminList.innerHTML =
-        filtered
-          .map(service => `
-            <div class="admin-item">
+      adminList.innerHTML = filtered
+        .map((service, index) => {
+          const globalIndex = services.findIndex(s => s.id === service.id);
+          const isFirst = globalIndex === 0;
+          const isLast = globalIndex === services.length - 1;
+
+          return `
+            <div
+              class="admin-item"
+              draggable="${!isSearching}"
+              data-id="${escapeHTML(service.id)}"
+              data-index="${globalIndex}"
+            >
+              <div class="drag-handle" title="${isSearching ? 'Clear search to drag' : 'Drag to reorder'}">
+                ⋮⋮
+              </div>
 
               <div class="admin-item-icon">
                 ${escapeHTML(service.icon)}
@@ -3471,16 +3165,36 @@
                 <div class="admin-item-title">
                   ${escapeHTML(service.name)}
                 </div>
-
                 <div class="admin-item-meta">
-                  ${escapeHTML(service.category)}
-                  ·
-                  ${escapeHTML(service.url)}
+                  ${escapeHTML(service.category)} · ${escapeHTML(service.url)}
                 </div>
               </div>
 
               <div class="admin-item-actions">
-
+                ${
+                  !isSearching
+                    ? `
+                  <button
+                    type="button"
+                    class="small-btn move"
+                    data-move-up="${globalIndex}"
+                    ${isFirst ? "disabled style='opacity:0.3;cursor:not-allowed;'" : ""}
+                    title="Move Up"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    class="small-btn move"
+                    data-move-down="${globalIndex}"
+                    ${isLast ? "disabled style='opacity:0.3;cursor:not-allowed;'" : ""}
+                    title="Move Down"
+                  >
+                    ▼
+                  </button>
+                `
+                    : ""
+                }
                 <button
                   type="button"
                   class="small-btn edit"
@@ -3488,25 +3202,75 @@
                 >
                   ✏️ Edit
                 </button>
-
+                <button
+                  type="button"
+                  class="small-btn delete"
+                  data-delete-id="${escapeHTML(service.id)}"
+                >
+                  🗑️ Delete
+                </button>
               </div>
-
             </div>
-          `)
-          .join("");
+          `;
+        })
+        .join("");
 
-      adminList
-        .querySelectorAll("[data-edit-id]")
-        .forEach(button => {
-          button.addEventListener(
-            "click",
-            () => {
-              openEditService(
-                button.dataset.editId
-              );
-            }
-          );
+      // Bind Button Events
+      adminList.querySelectorAll("[data-edit-id]").forEach(btn => {
+        btn.addEventListener("click", () => openEditService(btn.dataset.editId));
+      });
+
+      adminList.querySelectorAll("[data-delete-id]").forEach(btn => {
+        btn.addEventListener("click", () => deleteService(btn.dataset.deleteId));
+      });
+
+      adminList.querySelectorAll("[data-move-up]").forEach(btn => {
+        btn.addEventListener("click", () => moveService(parseInt(btn.dataset.moveUp, 10), -1));
+      });
+
+      adminList.querySelectorAll("[data-move-down]").forEach(btn => {
+        btn.addEventListener("click", () => moveService(parseInt(btn.dataset.moveDown, 10), 1));
+      });
+
+      // Bind Drag and Drop Events (only if not filtering)
+      if (!isSearching) {
+        bindDragAndDropEvents();
+      }
+    }
+
+    function bindDragAndDropEvents() {
+      const items = adminList.querySelectorAll(".admin-item");
+
+      items.forEach(item => {
+        item.addEventListener("dragstart", e => {
+          draggedItemIndex = parseInt(item.dataset.index, 10);
+          item.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
         });
+
+        item.addEventListener("dragend", () => {
+          item.classList.remove("dragging");
+          draggedItemIndex = null;
+        });
+
+        item.addEventListener("dragover", e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+        });
+
+        item.addEventListener("drop", e => {
+          e.preventDefault();
+          const targetIndex = parseInt(item.dataset.index, 10);
+
+          if (draggedItemIndex !== null && draggedItemIndex !== targetIndex) {
+            const movedItem = services.splice(draggedItemIndex, 1)[0];
+            services.splice(targetIndex, 0, movedItem);
+
+            saveServices();
+            renderAll();
+          }
+        });
+      });
     }
 
     /* =========================================================
@@ -3520,23 +3284,13 @@
       }
 
       currentEditId = null;
-
-      serviceFormTitle.textContent =
-        "Add Service";
-
+      serviceFormTitle.textContent = "Add Service";
       serviceForm.reset();
-
       serviceId.value = "";
-
       serviceIcon.value = "🏛️";
+      serviceFormModal.classList.add("show");
 
-      serviceFormModal.classList.add(
-        "show"
-      );
-
-      setTimeout(() => {
-        serviceName.focus();
-      }, 100);
+      setTimeout(() => serviceName.focus(), 100);
     }
 
     /* =========================================================
@@ -3549,49 +3303,23 @@
         return;
       }
 
-      const service =
-        services.find(
-          item => item.id === id
-        );
-
+      const service = services.find(item => item.id === id);
       if (!service) {
-        showToast(
-          "Service could not be found."
-        );
-
+        showToast("Service could not be found.");
         return;
       }
 
       currentEditId = id;
+      serviceFormTitle.textContent = "Edit Service";
+      serviceId.value = service.id;
+      serviceName.value = service.name;
+      serviceDescription.value = service.description;
+      serviceCategory.value = service.category;
+      serviceIcon.value = service.icon;
+      serviceUrl.value = service.url;
 
-      serviceFormTitle.textContent =
-        "Edit Service";
-
-      serviceId.value =
-        service.id;
-
-      serviceName.value =
-        service.name;
-
-      serviceDescription.value =
-        service.description;
-
-      serviceCategory.value =
-        service.category;
-
-      serviceIcon.value =
-        service.icon;
-
-      serviceUrl.value =
-        service.url;
-
-      serviceFormModal.classList.add(
-        "show"
-      );
-
-      setTimeout(() => {
-        serviceName.focus();
-      }, 100);
+      serviceFormModal.classList.add("show");
+      setTimeout(() => serviceName.focus(), 100);
     }
 
     /* =========================================================
@@ -3602,67 +3330,31 @@
       event.preventDefault();
 
       if (!isAdminLoggedIn) {
-        showToast(
-          "Please login as admin."
-        );
-
+        showToast("Please login as admin.");
         return;
       }
 
-      const name =
-        serviceName.value.trim();
+      const name = serviceName.value.trim();
+      const description = serviceDescription.value.trim();
+      const category = serviceCategory.value.trim();
+      const icon = serviceIcon.value.trim();
+      const url = serviceUrl.value.trim();
 
-      const description =
-        serviceDescription.value.trim();
-
-      const category =
-        serviceCategory.value.trim();
-
-      const icon =
-        serviceIcon.value.trim();
-
-      const url =
-        serviceUrl.value.trim();
-
-      if (
-        !name ||
-        !description ||
-        !category ||
-        !icon ||
-        !url
-      ) {
-        showToast(
-          "Please fill all fields."
-        );
-
+      if (!name || !description || !category || !icon || !url) {
+        showToast("Please fill all fields.");
         return;
       }
 
-      const validatedUrl =
-        safeUrl(url);
-
+      const validatedUrl = safeUrl(url);
       if (validatedUrl === "#") {
-        showToast(
-          "Please enter a valid HTTP/HTTPS URL."
-        );
-
+        showToast("Please enter a valid HTTP/HTTPS URL.");
         return;
       }
 
       if (currentEditId) {
-
-        const index =
-          services.findIndex(
-            item =>
-              item.id ===
-              currentEditId
-          );
-
+        const index = services.findIndex(item => item.id === currentEditId);
         if (index === -1) {
-          showToast(
-            "Service could not be found."
-          );
-
+          showToast("Service could not be found.");
           return;
         }
 
@@ -3675,12 +3367,8 @@
           url: validatedUrl
         };
 
-        showToast(
-          "Service updated successfully."
-        );
-
+        showToast("Service updated successfully.");
       } else {
-
         services.push({
           id: createId(),
           name,
@@ -3690,17 +3378,12 @@
           url: validatedUrl
         });
 
-        showToast(
-          "New service added successfully."
-        );
+        showToast("New service added successfully.");
       }
 
       saveServices();
-
       currentCategory = "All";
-
       renderAll();
-
       closeServiceFormModal();
     }
 
@@ -3709,10 +3392,7 @@
        ========================================================= */
 
     function closeServiceFormModal() {
-      serviceFormModal.classList.remove(
-        "show"
-      );
-
+      serviceFormModal.classList.remove("show");
       currentEditId = null;
       serviceForm.reset();
     }
@@ -3722,148 +3402,60 @@
        ========================================================= */
 
     function closeOnOverlayClick(event) {
-      if (
-        event.target !==
-        event.currentTarget
-      ) {
-        return;
-      }
-
-      event.currentTarget.classList.remove(
-        "show"
-      );
+      if (event.target !== event.currentTarget) return;
+      event.currentTarget.classList.remove("show");
     }
 
     /* =========================================================
        KEYBOARD
        ========================================================= */
 
-    document.addEventListener(
-      "keydown",
-      event => {
-
-        if (event.key !== "Escape") {
-          return;
-        }
-
-        loginModal.classList.remove(
-          "show"
-        );
-
-        adminModal.classList.remove(
-          "show"
-        );
-
-        serviceFormModal.classList.remove(
-          "show"
-        );
-      }
-    );
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      loginModal.classList.remove("show");
+      adminModal.classList.remove("show");
+      serviceFormModal.classList.remove("show");
+    });
 
     /* =========================================================
        EVENT LISTENERS
        ========================================================= */
 
-    themeToggle.addEventListener(
-      "click",
-      toggleTheme
-    );
+    themeToggle.addEventListener("click", toggleTheme);
+    searchInput.addEventListener("input", renderServices);
 
-    searchInput.addEventListener(
-      "input",
-      renderServices
-    );
-
-    adminOpenBtn.addEventListener(
-      "click",
-      () => {
-
-        if (isAdminLoggedIn) {
-          openAdminModal();
-        } else {
-          openLoginModal();
-        }
-
+    adminOpenBtn.addEventListener("click", () => {
+      if (isAdminLoggedIn) {
+        openAdminModal();
+      } else {
+        openLoginModal();
       }
-    );
+    });
 
-    loginCloseBtn.addEventListener(
-      "click",
-      closeLoginModal
-    );
+    loginCloseBtn.addEventListener("click", closeLoginModal);
+    loginCancelBtn.addEventListener("click", closeLoginModal);
+    loginForm.addEventListener("submit", handleLogin);
 
-    loginCancelBtn.addEventListener(
-      "click",
-      closeLoginModal
-    );
+    adminCloseBtn.addEventListener("click", closeAdminModal);
+    logoutBtn.addEventListener("click", logoutAdmin);
+    addServiceBtn.addEventListener("click", openAddService);
+    adminSearch.addEventListener("input", renderAdminList);
 
-    loginForm.addEventListener(
-      "submit",
-      handleLogin
-    );
+    serviceFormCloseBtn.addEventListener("click", closeServiceFormModal);
+    serviceFormCancelBtn.addEventListener("click", closeServiceFormModal);
+    serviceForm.addEventListener("submit", handleServiceSave);
 
-    adminCloseBtn.addEventListener(
-      "click",
-      closeAdminModal
-    );
-
-    logoutBtn.addEventListener(
-      "click",
-      logoutAdmin
-    );
-
-    addServiceBtn.addEventListener(
-      "click",
-      openAddService
-    );
-
-    adminSearch.addEventListener(
-      "input",
-      renderAdminList
-    );
-
-    serviceFormCloseBtn.addEventListener(
-      "click",
-      closeServiceFormModal
-    );
-
-    serviceFormCancelBtn.addEventListener(
-      "click",
-      closeServiceFormModal
-    );
-
-    serviceForm.addEventListener(
-      "submit",
-      handleServiceSave
-    );
-
-    loginModal.addEventListener(
-      "click",
-      closeOnOverlayClick
-    );
-
-    adminModal.addEventListener(
-      "click",
-      closeOnOverlayClick
-    );
-
-    serviceFormModal.addEventListener(
-      "click",
-      closeOnOverlayClick
-    );
+    loginModal.addEventListener("click", closeOnOverlayClick);
+    adminModal.addEventListener("click", closeOnOverlayClick);
+    serviceFormModal.addEventListener("click", closeOnOverlayClick);
 
     /* =========================================================
        INITIALIZATION
        ========================================================= */
 
-    currentYear.textContent =
-      new Date().getFullYear();
-
+    currentYear.textContent = new Date().getFullYear();
     loadTheme();
-
     renderAll();
-
   </script>
-
 </body>
 </html>
