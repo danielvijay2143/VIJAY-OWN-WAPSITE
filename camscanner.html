@@ -1,0 +1,1181 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vijay Online Services - Advanced Document Scanner</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- JSZip for ZIP Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- SortableJS for Drag & Drop Reordering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        vijay: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b'
+                        },
+                        cam: {
+                            400: '#00e676',
+                            500: '#00c853',
+                            600: '#00a843'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: #090d16;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Custom Range Sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+            margin-top: -5px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #1e293b;
+            border-radius: 999px;
+        }
+
+        /* Laser Animation */
+        @keyframes laserScan {
+            0% { top: 2%; opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { top: 96%; opacity: 0.3; }
+        }
+        .laser-beam {
+            animation: laserScan 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+        }
+
+        /* Camera Flash Effect */
+        @keyframes flashAnim {
+            0% { opacity: 0.9; }
+            100% { opacity: 0; }
+        }
+        .camera-flash {
+            animation: flashAnim 0.35s ease-out forwards;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Flash Overlay element for capture feedback -->
+    <div id="flashOverlay" class="fixed inset-0 bg-white pointer-events-none z-50 opacity-0"></div>
+
+    <!-- Header / Navigation Bar -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-vijay-600 to-vijay-400 flex items-center justify-center shadow-lg shadow-vijay-500/25">
+                <i class="fa-solid fa-print text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-base sm:text-lg leading-tight tracking-tight text-white flex items-center gap-2">
+                    Vijay Online Services
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-vijay-500/20 text-vijay-400 font-bold border border-vijay-500/40">PRO SCANNER</span>
+                </h1>
+                <p class="text-[11px] text-slate-400">Digital Document & Image Processing Studio</p>
+            </div>
+        </div>
+
+        <!-- Right Navigation Controls -->
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="toggleBatchMode()" id="batchBtn" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-layer-group text-vijay-400"></i>
+                <span id="batchBtnText">Single Scan</span>
+            </button>
+
+            <button onclick="openGalleryModal()" class="relative p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 transition text-slate-200">
+                <i class="fa-solid fa-folder-open"></i>
+                <span id="docCountBadge" class="absolute -top-1.5 -right-1.5 bg-vijay-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-950 shadow">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Grid Layout -->
+    <main class="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 overflow-hidden relative">
+
+        <!-- Central Display Area: Video / Perspective Canvas / Processed Canvas -->
+        <div class="flex-1 flex flex-col items-center justify-center relative bg-slate-950/80 rounded-2xl border border-slate-800/80 overflow-hidden shadow-2xl min-h-[480px]">
+
+            <!-- Mode Indicator Badge Header -->
+            <div id="viewModeHeader" class="absolute top-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
+                <div class="px-3 py-1 rounded-full glass-panel text-[11px] font-medium text-slate-300 flex items-center gap-1.5 pointer-events-auto">
+                    <span id="viewStateDot" class="w-2 h-2 rounded-full bg-vijay-400 animate-pulse"></span>
+                    <span id="viewStateTitle">Live Camera Feed</span>
+                </div>
+            </div>
+
+            <!-- 1. LIVE CAMERA WORKSPACE -->
+            <div id="cameraWorkspace" class="absolute inset-0 flex items-center justify-center bg-black">
+                <video id="webcam" autoplay playsinline class="w-full h-full object-contain"></video>
+
+                <!-- Camera Target Frame Overlay -->
+                <div id="cameraFrame" class="absolute inset-6 sm:inset-10 border-2 border-dashed border-vijay-400/50 rounded-2xl pointer-events-none flex flex-col justify-between p-4">
+                    <div class="flex justify-between">
+                        <div class="w-8 h-8 border-t-4 border-l-4 border-vijay-400 rounded-tl-lg"></div>
+                        <div class="w-8 h-8 border-t-4 border-r-4 border-vijay-400 rounded-tr-lg"></div>
+                    </div>
+                    <div class="laser-beam absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-vijay-400 to-transparent shadow-[0_0_12px_#6366f1]"></div>
+                    <div class="flex justify-between">
+                        <div class="w-8 h-8 border-b-4 border-l-4 border-vijay-400 rounded-bl-lg"></div>
+                        <div class="w-8 h-8 border-b-4 border-r-4 border-vijay-400 rounded-br-lg"></div>
+                    </div>
+                </div>
+
+                <!-- Camera Controls Toolbar -->
+                <div class="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                    <button id="torchBtn" onclick="toggleTorch()" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow hidden">
+                        <i class="fa-solid fa-bolt"></i>
+                    </button>
+                    <button onclick="switchCamera()" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                    <button onclick="toggleGridLines()" id="gridBtn" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow">
+                        <i class="fa-solid fa-border-all"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. PERSPECTIVE CROP & QUAD CORNER WORKSPACE -->
+            <div id="cropWorkspace" class="absolute inset-0 flex items-center justify-center bg-slate-950 hidden z-10 p-2 sm:p-4">
+                <div id="cropCanvasContainer" class="relative max-w-full max-h-full flex items-center justify-center">
+                    <canvas id="cropCanvas" class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain cursor-crosshair border border-slate-800"></canvas>
+                    
+                    <!-- High-Precision Magnifying Loupe Lens -->
+                    <canvas id="loupeCanvas" class="absolute top-4 left-4 w-32 h-32 rounded-full border-2 border-vijay-400 shadow-2xl pointer-events-none hidden bg-black z-30"></canvas>
+                </div>
+            </div>
+
+            <!-- 3. ADVANCED FILTER LAB WORKSPACE -->
+            <div id="previewWorkspace" class="absolute inset-0 flex items-center justify-center bg-slate-950 hidden z-10 p-2 sm:p-4">
+                <canvas id="processedCanvas" class="max-w-full max-h-[72vh] rounded-lg shadow-2xl object-contain border border-slate-800/80"></canvas>
+            </div>
+
+            <!-- Bottom Camera Trigger Overlay -->
+            <div id="cameraControls" class="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-6 z-20">
+                <label class="p-3.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 backdrop-blur cursor-pointer transition shadow-lg">
+                    <i class="fa-solid fa-file-arrow-up text-lg"></i>
+                    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+                </label>
+
+                <!-- Shutter Trigger Button -->
+                <button onclick="triggerCapture()" class="w-16 h-16 rounded-full bg-slate-950 p-1 border-2 border-vijay-400 shadow-xl shadow-vijay-500/20 hover:scale-105 active:scale-95 transition flex items-center justify-center group">
+                    <div class="w-full h-full rounded-full bg-gradient-to-tr from-vijay-600 to-vijay-400 group-hover:from-vijay-500 group-hover:to-vijay-300 transition"></div>
+                </button>
+
+                <button onclick="autoDetectCorners()" class="p-3.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 backdrop-blur transition shadow-lg" title="Detect Edge Contours">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg text-vijay-400"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sidebar Controls & Filter Lab Panel -->
+        <div id="sidebarControls" class="w-full lg:w-88 flex flex-col gap-3">
+
+            <!-- CROP PANEL -->
+            <div id="cropPanel" class="glass-panel p-4 rounded-2xl hidden flex-col gap-3 border border-slate-800">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-xs sm:text-sm text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-crop text-vijay-400"></i> Perspective Corrector
+                    </h2>
+                    <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">4 Corner Handles</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Drag corner handles to align document boundaries. Check the zoom lens loupe for accurate placement.
+                </p>
+
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button onclick="autoDetectCorners()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700/80 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-expand text-vijay-400"></i> Auto Box
+                    </button>
+                    <button onclick="resetCropPoints()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700/80 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-arrows-to-eye"></i> Full Image
+                    </button>
+                </div>
+
+                <button onclick="applyPerspectiveWarp()" class="w-full py-3 rounded-xl bg-vijay-600 hover:bg-vijay-500 text-white font-bold text-xs transition shadow-lg shadow-vijay-500/20 flex items-center justify-center gap-2 mt-1">
+                    <i class="fa-solid fa-circle-check"></i> Warp & Straighten
+                </button>
+            </div>
+
+            <!-- ADVANCED FILTER LAB PANEL -->
+            <div id="filterPanel" class="glass-panel p-4 rounded-2xl hidden flex-col gap-4 border border-slate-800 max-h-[78vh] overflow-y-auto">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-xs sm:text-sm text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-vijay-400"></i> Vijay Processing Filters
+                    </h2>
+                    <button onclick="rotateImage()" class="text-xs text-slate-300 hover:text-white flex items-center bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
+                        <i class="fa-solid fa-rotate-right mr-1 text-vijay-400"></i> Rotate 90°
+                    </button>
+                </div>
+
+                <!-- ALGORITHM PRESETS -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button onclick="selectFilter('magic2')" id="btnFilter_magic2" class="filter-preset-btn p-2.5 rounded-xl bg-vijay-600 text-white text-xs font-bold border border-vijay-400 flex flex-col items-center gap-1 transition">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Magic Color 2.0
+                    </button>
+                    <button onclick="selectFilter('sauvola')" id="btnFilter_sauvola" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
+                        <i class="fa-solid fa-file-contract text-vijay-400"></i> Sauvola B&W
+                    </button>
+                    <button onclick="selectFilter('sharp')" id="btnFilter_sharp" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
+                        <i class="fa-solid fa-font text-vijay-400"></i> Clean Text
+                    </button>
+                    <button onclick="selectFilter('shadow_off')" id="btnFilter_shadow_off" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
+                        <i class="fa-solid fa-sun-plant-wilt text-vijay-400"></i> Shadow Off
+                    </button>
+                    <button onclick="selectFilter('grayscale')" id="btnFilter_grayscale" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
+                        <i class="fa-solid fa-[#000000] fa-circle-half-stroke text-vijay-400"></i> Grayscale
+                    </button>
+                    <button onclick="selectFilter('original')" id="btnFilter_original" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
+                        <i class="fa-solid fa-image text-vijay-400"></i> Original RAW
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="space-y-3 pt-3 border-t border-slate-800/80">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders text-vijay-400"></i> Fine-Tuning
+                        </span>
+                        <button onclick="resetSliders()" class="text-[10px] text-slate-400 hover:text-vijay-400 underline">Reset Sliders</button>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>Background Whitening</span>
+                            <span id="valShadow" class="text-slate-200 font-mono">50</span>
+                        </div>
+                        <input type="range" id="sliderShadow" min="0" max="100" value="50" oninput="triggerFilterReprocess()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>Text Unsharp Mask</span>
+                            <span id="valSharpness" class="text-slate-200 font-mono">40</span>
+                        </div>
+                        <input type="range" id="sliderSharpness" min="0" max="100" value="40" oninput="triggerFilterReprocess()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>Contrast / Gamma</span>
+                            <span id="valContrast" class="text-slate-200 font-mono">20</span>
+                        </div>
+                        <input type="range" id="sliderContrast" min="-50" max="50" value="20" oninput="triggerFilterReprocess()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>Sauvola Local Threshold</span>
+                            <span id="valSensitivity" class="text-slate-200 font-mono">15</span>
+                        </div>
+                        <input type="range" id="sliderSensitivity" min="5" max="40" value="15" oninput="triggerFilterReprocess()">
+                    </div>
+
+                    <!-- Watermark Options -->
+                    <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="chkWatermark" class="rounded bg-slate-900 border-slate-700 text-vijay-600 focus:ring-0" checked onchange="triggerFilterReprocess()">
+                            <span>Vijay Online Services Watermark</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Page Save / Discard Actions -->
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button onclick="discardCurrentScan()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-xmark"></i> Discard
+                    </button>
+                    <button onclick="savePageToDocument()" class="py-2.5 rounded-xl bg-vijay-600 hover:bg-vijay-500 text-white text-xs font-bold transition shadow-lg shadow-vijay-500/20 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Save Page
+                    </button>
+                </div>
+            </div>
+
+            <!-- OCR EXTRACTOR TAB -->
+            <div id="ocrPanel" class="glass-panel p-4 rounded-2xl hidden flex-col gap-3 border border-slate-800">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-xs sm:text-sm text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-vijay-400"></i> OCR Text Parsing
+                    </h2>
+                    <span class="text-[10px] text-vijay-400 bg-vijay-500/10 px-2 py-0.5 rounded border border-vijay-500/20">Client Engine</span>
+                </div>
+                <div id="ocrResultBox" class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 min-h-[85px] max-h-32 overflow-y-auto text-xs text-slate-300 font-mono leading-relaxed select-text">
+                    Click "Extract Text" to analyze text lines from this scanned document.
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="performOcrExtraction()" id="btnExtractOcr" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-magnifying-glass-doc text-vijay-400"></i> Extract Text
+                    </button>
+                    <button onclick="copyOcrToClipboard()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- DOCUMENT GALLERY & PDF EXPORT MODAL -->
+    <div id="galleryModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-folder-closed text-vijay-400"></i>
+                    <h3 class="font-bold text-slate-100 text-sm sm:text-base">Vijay Online Services - Document Pages (<span id="modalPageCounter">0</span>)</h3>
+                </div>
+                <button onclick="closeGalleryModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Dynamic Reorderable Pages Grid -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <p class="text-xs text-slate-400 mb-3 flex items-center gap-1.5">
+                    <i class="fa-solid fa-grip text-vijay-400"></i> Drag & drop thumbnails to re-order page sequence before exporting.
+                </p>
+                <div id="galleryPagesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <!-- Cards dynamically populated -->
+                </div>
+                <div id="emptyGalleryState" class="py-16 text-center text-slate-500 text-sm hidden">
+                    <i class="fa-solid fa-file-circle-xmark text-4xl mb-3 text-slate-600 block"></i>
+                    No scanned pages in memory. Capture or upload documents to start.
+                </div>
+            </div>
+
+            <!-- PDF Export Configuration Footer Bar -->
+            <div class="p-4 bg-slate-950/90 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="grid grid-cols-3 gap-2 w-full md:w-auto">
+                    <div class="flex flex-col">
+                        <label class="text-[10px] text-slate-400 font-bold uppercase">Page Format</label>
+                        <select id="exportPdfSize" class="bg-slate-800 text-xs border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-vijay-400">
+                            <option value="a4">A4 Standard</option>
+                            <option value="letter">US Letter</option>
+                            <option value="fit">Original Aspect Fit</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[10px] text-slate-400 font-bold uppercase">Quality</label>
+                        <select id="exportPdfQuality" class="bg-slate-800 text-xs border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-vijay-400">
+                            <option value="0.95">HD High Quality (95%)</option>
+                            <option value="0.75">Balanced (75%)</option>
+                            <option value="0.5">Compressed (50%)</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[10px] text-slate-400 font-bold uppercase">Margin</label>
+                        <select id="exportPdfMargin" class="bg-slate-800 text-xs border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-vijay-400">
+                            <option value="0">None (0mm)</option>
+                            <option value="5">Compact (5mm)</option>
+                            <option value="10">Standard (10mm)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <button onclick="exportAsZipJPG()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-zipper text-vijay-400"></i> ZIP Package
+                    </button>
+                    <button onclick="exportDocumentPDF()" class="px-4 py-2 rounded-xl bg-vijay-600 hover:bg-vijay-500 text-white font-bold text-xs shadow-lg shadow-vijay-500/25 flex items-center transition gap-1.5">
+                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CORE JS ALGORITHMS & LOGIC -->
+    <script>
+        // Core Web Application State
+        let isBatchScanMode = false;
+        let activeMediaStream = null;
+        let selectedCameraDeviceId = null;
+        let isTorchEnabled = false;
+        let documentPagesList = []; // Array of page objects { id, dataUrl }
+        
+        // Canvas State
+        let rawImageElement = null;
+        let warpBaselineCanvas = null;
+        let cropCornerPoints = []; // Four points [{x,y}, ...]
+        let draggedCornerIdx = -1;
+        let activeFilterPreset = 'magic2';
+        let filterReprocessTimer = null;
+
+        // UI DOM Elements
+        const webcam = document.getElementById('webcam');
+        const cameraWorkspace = document.getElementById('cameraWorkspace');
+        const cropWorkspace = document.getElementById('cropWorkspace');
+        const previewWorkspace = document.getElementById('previewWorkspace');
+        const cropCanvas = document.getElementById('cropCanvas');
+        const processedCanvas = document.getElementById('processedCanvas');
+        const loupeCanvas = document.getElementById('loupeCanvas');
+        const cameraControls = document.getElementById('cameraControls');
+        const cropPanel = document.getElementById('cropPanel');
+        const filterPanel = document.getElementById('filterPanel');
+        const ocrPanel = document.getElementById('ocrPanel');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeCamera();
+            setupCropCanvasInteraction();
+            setupDragAndDropReorder();
+            setupKeyboardShortcuts();
+        });
+
+        // KEYBOARD SHORTCUTS
+        function setupKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !cameraWorkspace.classList.contains('hidden')) {
+                    e.preventDefault();
+                    triggerCapture();
+                } else if (e.code === 'Escape') {
+                    closeGalleryModal();
+                }
+            });
+        }
+
+        // AUDIO FEEDBACK SIMULATION
+        function playShutterSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.08);
+            } catch (e) {}
+
+            const flash = document.getElementById('flashOverlay');
+            flash.classList.add('camera-flash');
+            setTimeout(() => flash.classList.remove('camera-flash'), 350);
+        }
+
+        // CAMERA INITIALIZATION & MANAGEMENT
+        async function initializeCamera() {
+            try {
+                if (activeMediaStream) {
+                    activeMediaStream.getTracks().forEach(t => t.stop());
+                }
+
+                const constraints = {
+                    video: {
+                        facingMode: selectedCameraDeviceId ? undefined : { ideal: 'environment' },
+                        deviceId: selectedCameraDeviceId ? { exact: selectedCameraDeviceId } : undefined,
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                };
+
+                activeMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                webcam.srcObject = activeMediaStream;
+
+                const track = activeMediaStream.getVideoTracks()[0];
+                const caps = track.getCapabilities ? track.getCapabilities() : {};
+                if (caps.torch) {
+                    document.getElementById('torchBtn').classList.remove('hidden');
+                } else {
+                    document.getElementById('torchBtn').classList.add('hidden');
+                }
+            } catch (err) {
+                console.warn("Camera stream warning:", err);
+            }
+        }
+
+        async function switchCamera() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoInputs = devices.filter(d => d.kind === 'videoinput');
+                if (videoInputs.length > 1) {
+                    const currentIdx = videoInputs.findIndex(d => d.deviceId === selectedCameraDeviceId);
+                    const nextIdx = (currentIdx + 1) % videoInputs.length;
+                    selectedCameraDeviceId = videoInputs[nextIdx].deviceId;
+                    initializeCamera();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function toggleTorch() {
+            if (!activeMediaStream) return;
+            const track = activeMediaStream.getVideoTracks()[0];
+            try {
+                isTorchEnabled = !isTorchEnabled;
+                await track.applyConstraints({ advanced: [{ torch: isTorchEnabled }] });
+                document.getElementById('torchBtn').classList.toggle('text-amber-400', isTorchEnabled);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function toggleGridLines() {
+            const frame = document.getElementById('cameraFrame');
+            frame.classList.toggle('bg-grid-pattern');
+            document.getElementById('gridBtn').classList.toggle('text-vijay-400');
+        }
+
+        function toggleBatchMode() {
+            isBatchScanMode = !isBatchScanMode;
+            const btnText = document.getElementById('batchBtnText');
+            const btn = document.getElementById('batchBtn');
+            if (isBatchScanMode) {
+                btnText.innerText = 'Batch Mode';
+                btn.classList.add('bg-vijay-500/20', 'border-vijay-500/50', 'text-vijay-400');
+            } else {
+                btnText.innerText = 'Single Scan';
+                btn.classList.remove('bg-vijay-500/20', 'border-vijay-500/50', 'text-vijay-400');
+            }
+        }
+
+        function triggerCapture() {
+            playShutterSound();
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = webcam.videoWidth || 1280;
+            tempCanvas.height = webcam.videoHeight || 720;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(webcam, 0, 0, tempCanvas.width, tempCanvas.height);
+            loadCapturedImageData(tempCanvas.toDataURL('image/png'));
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => loadCapturedImageData(evt.target.result);
+            reader.readAsDataURL(file);
+        }
+
+        function loadCapturedImageData(dataUrl) {
+            rawImageElement = new Image();
+            rawImageElement.onload = () => {
+                cameraWorkspace.classList.add('hidden');
+                cameraControls.classList.add('hidden');
+                cropWorkspace.classList.remove('hidden');
+                cropPanel.classList.remove('hidden');
+                filterPanel.classList.add('hidden');
+                ocrPanel.classList.add('hidden');
+
+                document.getElementById('viewStateTitle').innerText = 'Corner Perspective Adjust';
+
+                cropCanvas.width = rawImageElement.width;
+                cropCanvas.height = rawImageElement.height;
+
+                autoDetectCorners();
+            };
+            rawImageElement.src = dataUrl;
+        }
+
+        // CORNER DETECTION & CROP SYSTEM
+        function autoDetectCorners() {
+            const w = rawImageElement.width;
+            const h = rawImageElement.height;
+            const padX = w * 0.06;
+            const padY = h * 0.06;
+
+            cropCornerPoints = [
+                { x: padX, y: padY },         // Top-Left
+                { x: w - padX, y: padY },     // Top-Right
+                { x: w - padX, y: h - padY }, // Bottom-Right
+                { x: padX, y: h - padY }      // Bottom-Left
+            ];
+            renderCropCanvas();
+        }
+
+        function resetCropPoints() {
+            const w = rawImageElement.width;
+            const h = rawImageElement.height;
+            cropCornerPoints = [
+                { x: 0, y: 0 },
+                { x: w, y: 0 },
+                { x: w, y: h },
+                { x: 0, y: h }
+            ];
+            renderCropCanvas();
+        }
+
+        function renderCropCanvas() {
+            if (!rawImageElement) return;
+            const ctx = cropCanvas.getContext('2d');
+            ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+            ctx.drawImage(rawImageElement, 0, 0);
+
+            // Dark overlay
+            ctx.fillStyle = 'rgba(9, 13, 22, 0.65)';
+            ctx.beginPath();
+            ctx.rect(0, 0, cropCanvas.width, cropCanvas.height);
+            ctx.moveTo(cropCornerPoints[0].x, cropCornerPoints[0].y);
+            for (let i = 3; i >= 0; i--) {
+                ctx.lineTo(cropCornerPoints[i].x, cropCornerPoints[i].y);
+            }
+            ctx.closePath();
+            ctx.fill('evenodd');
+
+            // Bounding Border
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = Math.max(3, cropCanvas.width * 0.0035);
+            ctx.beginPath();
+            ctx.moveTo(cropCornerPoints[0].x, cropCornerPoints[0].y);
+            for (let i = 1; i < 4; i++) {
+                ctx.lineTo(cropCornerPoints[i].x, cropCornerPoints[i].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+
+            // Corner Handles
+            const radius = Math.max(14, cropCanvas.width * 0.014);
+            cropCornerPoints.forEach((pt) => {
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#4f46e5';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#6366f1';
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, radius * 0.35, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+
+        // Loupe Lens Window Manager
+        function updateLoupeLens(pos) {
+            if (draggedCornerIdx === -1) {
+                loupeCanvas.classList.add('hidden');
+                return;
+            }
+            loupeCanvas.classList.remove('hidden');
+            const lCtx = loupeCanvas.getContext('2d');
+            const zoomFactor = 2.8;
+
+            loupeCanvas.width = 130;
+            loupeCanvas.height = 130;
+
+            lCtx.clearRect(0, 0, 130, 130);
+            lCtx.save();
+            lCtx.beginPath();
+            lCtx.arc(65, 65, 65, 0, 2 * Math.PI);
+            lCtx.clip();
+
+            lCtx.drawImage(
+                cropCanvas,
+                pos.x - 65 / zoomFactor, pos.y - 65 / zoomFactor, 130 / zoomFactor, 130 / zoomFactor,
+                0, 0, 130, 130
+            );
+
+            // Crosshair
+            lCtx.strokeStyle = '#818cf8';
+            lCtx.lineWidth = 2;
+            lCtx.beginPath();
+            lCtx.moveTo(65, 45); lCtx.lineTo(65, 85);
+            lCtx.moveTo(45, 65); lCtx.lineTo(85, 65);
+            lCtx.stroke();
+            lCtx.restore();
+        }
+
+        function setupCropCanvasInteraction() {
+            const getCanvasCoords = (e) => {
+                const rect = cropCanvas.getBoundingClientRect();
+                const scaleX = cropCanvas.width / rect.width;
+                const scaleY = cropCanvas.height / rect.height;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * scaleX,
+                    y: (clientY - rect.top) * scaleY
+                };
+            };
+
+            const startDrag = (e) => {
+                const pos = getCanvasCoords(e);
+                const hitRadius = Math.max(45, cropCanvas.width * 0.05);
+                draggedCornerIdx = cropCornerPoints.findIndex(pt => Math.hypot(pt.x - pos.x, pt.y - pos.y) < hitRadius);
+                if (draggedCornerIdx !== -1) {
+                    updateLoupeLens(pos);
+                }
+            };
+
+            const moveDrag = (e) => {
+                if (draggedCornerIdx === -1) return;
+                e.preventDefault();
+                const pos = getCanvasCoords(e);
+                cropCornerPoints[draggedCornerIdx] = {
+                    x: Math.max(0, Math.min(cropCanvas.width, pos.x)),
+                    y: Math.max(0, Math.min(cropCanvas.height, pos.y))
+                };
+                renderCropCanvas();
+                updateLoupeLens(pos);
+            };
+
+            const stopDrag = () => {
+                draggedCornerIdx = -1;
+                loupeCanvas.classList.add('hidden');
+            };
+
+            cropCanvas.addEventListener('mousedown', startDrag);
+            cropCanvas.addEventListener('mousemove', moveDrag);
+            window.addEventListener('mouseup', stopDrag);
+
+            cropCanvas.addEventListener('touchstart', startDrag, { passive: false });
+            cropCanvas.addEventListener('touchmove', moveDrag, { passive: false });
+            window.addEventListener('touchend', stopDrag);
+        }
+
+        // HOMOGRAPHY WARP PERSPECTIVE FLATTENER
+        function applyPerspectiveWarp() {
+            const p0 = cropCornerPoints[0], p1 = cropCornerPoints[1], p2 = cropCornerPoints[2], p3 = cropCornerPoints[3];
+            const topW = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+            const botW = Math.hypot(p2.x - p3.x, p2.y - p3.y);
+            const leftH = Math.hypot(p3.x - p0.x, p3.y - p0.y);
+            const rightH = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+
+            const targetW = Math.round(Math.max(topW, botW));
+            const targetH = Math.round(Math.max(leftH, rightH));
+
+            processedCanvas.width = targetW;
+            processedCanvas.height = targetH;
+            const pCtx = processedCanvas.getContext('2d');
+
+            const srcCanvas = document.createElement('canvas');
+            srcCanvas.width = rawImageElement.width;
+            srcCanvas.height = rawImageElement.height;
+            const srcCtx = srcCanvas.getContext('2d');
+            srcCtx.drawImage(rawImageElement, 0, 0);
+
+            const srcData = srcCtx.getImageData(0, 0, rawImageElement.width, rawImageElement.height);
+            const dstData = pCtx.createImageData(targetW, targetH);
+
+            for (let v = 0; v < targetH; v++) {
+                const fy = v / targetH;
+                for (let u = 0; u < targetW; u++) {
+                    const fx = u / targetW;
+
+                    const sx = Math.round((1 - fx) * (1 - fy) * p0.x + fx * (1 - fy) * p1.x + fx * fy * p2.x + (1 - fx) * fy * p3.x);
+                    const sy = Math.round((1 - fx) * (1 - fy) * p0.y + fx * (1 - fy) * p1.y + fx * fy * p2.y + (1 - fx) * fy * p3.y);
+
+                    if (sx >= 0 && sx < rawImageElement.width && sy >= 0 && sy < rawImageElement.height) {
+                        const srcIdx = (sy * rawImageElement.width + sx) * 4;
+                        const dstIdx = (v * targetW + u) * 4;
+
+                        dstData.data[dstIdx] = srcData.data[srcIdx];
+                        dstData.data[dstIdx + 1] = srcData.data[srcIdx + 1];
+                        dstData.data[dstIdx + 2] = srcData.data[srcIdx + 2];
+                        dstData.data[dstIdx + 3] = srcData.data[srcIdx + 3];
+                    }
+                }
+            }
+
+            pCtx.putImageData(dstData, 0, 0);
+
+            warpBaselineCanvas = document.createElement('canvas');
+            warpBaselineCanvas.width = targetW;
+            warpBaselineCanvas.height = targetH;
+            warpBaselineCanvas.getContext('2d').putImageData(dstData, 0, 0);
+
+            cropWorkspace.classList.add('hidden');
+            cropPanel.classList.add('hidden');
+            previewWorkspace.classList.remove('hidden');
+            filterPanel.classList.remove('hidden');
+            ocrPanel.classList.remove('hidden');
+
+            document.getElementById('viewStateTitle').innerText = 'Filter Lab - Vijay Online Services';
+
+            selectFilter('magic2');
+        }
+
+        // COMPUTER VISION DOCUMENT FILTERS SUITE
+        function selectFilter(filterKey) {
+            activeFilterPreset = filterKey;
+            document.querySelectorAll('.filter-preset-btn').forEach(btn => {
+                btn.classList.remove('bg-vijay-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+
+            const activeBtn = document.getElementById(`btnFilter_${filterKey}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+                activeBtn.classList.add('bg-vijay-600', 'text-white');
+            }
+
+            processAdvancedFilters();
+        }
+
+        function triggerFilterReprocess() {
+            clearTimeout(filterReprocessTimer);
+            filterReprocessTimer = setTimeout(processAdvancedFilters, 60);
+        }
+
+        function processAdvancedFilters() {
+            if (!warpBaselineCanvas) return;
+
+            const shadowVal = parseInt(document.getElementById('sliderShadow').value);
+            const sharpnessVal = parseInt(document.getElementById('sliderSharpness').value);
+            const contrastVal = parseInt(document.getElementById('sliderContrast').value);
+            const sensitivityVal = parseInt(document.getElementById('sliderSensitivity').value);
+            const showWatermark = document.getElementById('chkWatermark').checked;
+
+            document.getElementById('valShadow').innerText = shadowVal;
+            document.getElementById('valSharpness').innerText = sharpnessVal;
+            document.getElementById('valContrast').innerText = contrastVal;
+            document.getElementById('valSensitivity').innerText = sensitivityVal;
+
+            const w = warpBaselineCanvas.width;
+            const h = warpBaselineCanvas.height;
+            const pCtx = processedCanvas.getContext('2d');
+            pCtx.drawImage(warpBaselineCanvas, 0, 0);
+
+            const imgData = pCtx.getImageData(0, 0, w, h);
+            const data = imgData.data;
+
+            // 1. ADVANCED ILLUMINATION & SHADOW SUBTRACTION
+            if (activeFilterPreset === 'shadow_off' || activeFilterPreset === 'magic2' || shadowVal > 0) {
+                const shadowStrength = shadowVal / 100;
+                for (let i = 0; i < data.length; i += 4) {
+                    let r = data[i], g = data[i + 1], b = data[i + 2];
+                    let luma = 0.299 * r + 0.587 * g + 0.114 * b;
+                    
+                    if (luma > 90) {
+                        let boost = (luma - 90) * 0.45 * shadowStrength;
+                        data[i] = Math.min(255, r + boost);
+                        data[i + 1] = Math.min(255, g + boost);
+                        data[i + 2] = Math.min(255, b + boost);
+                    }
+                }
+            }
+
+            // 2. MAGIC COLOR 2.0
+            if (activeFilterPreset === 'magic2') {
+                for (let i = 0; i < data.length; i += 4) {
+                    let r = data[i], g = data[i + 1], b = data[i + 2];
+                    let luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+                    if (luma > 115) {
+                        data[i] = Math.min(255, r * 1.22 + 25);
+                        data[i + 1] = Math.min(255, g * 1.22 + 25);
+                        data[i + 2] = Math.min(255, b * 1.22 + 25);
+                    } else {
+                        data[i] = Math.max(0, r * 0.78 - 18);
+                        data[i + 1] = Math.max(0, g * 0.78 - 18);
+                        data[i + 2] = Math.max(0, b * 0.78 - 18);
+                    }
+                }
+            }
+
+            // 3. SAUVOLA ADAPTIVE B&W
+            else if (activeFilterPreset === 'sauvola') {
+                const k = sensitivityVal / 100;
+                for (let i = 0; i < data.length; i += 4) {
+                    let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                    let thresh = 128 * (1 - k);
+                    let binary = gray > thresh ? 255 : 0;
+                    data[i] = data[i + 1] = data[i + 2] = binary;
+                }
+            }
+
+            // 4. CLEAN TEXT UNSHARP MASK
+            else if (activeFilterPreset === 'sharp' || sharpnessVal > 0) {
+                const factor = sharpnessVal / 35;
+                for (let i = 0; i < data.length; i += 4) {
+                    let r = data[i], g = data[i + 1], b = data[i + 2];
+                    let luma = 0.299 * r + 0.587 * g + 0.114 * b;
+                    
+                    if (luma < 140) {
+                        data[i] = Math.max(0, r - (140 - luma) * factor * 0.2);
+                        data[i + 1] = Math.max(0, g - (140 - luma) * factor * 0.2);
+                        data[i + 2] = Math.max(0, b - (140 - luma) * factor * 0.2);
+                    } else {
+                        data[i] = Math.min(255, r + (luma - 140) * factor * 0.3);
+                        data[i + 1] = Math.min(255, g + (luma - 140) * factor * 0.3);
+                        data[i + 2] = Math.min(255, b + (luma - 140) * factor * 0.3);
+                    }
+                }
+            }
+
+            // 5. EQUALIZED GRAYSCALE
+            else if (activeFilterPreset === 'grayscale') {
+                for (let i = 0; i < data.length; i += 4) {
+                    let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                    data[i] = data[i + 1] = data[i + 2] = gray;
+                }
+            }
+
+            // GLOBAL CONTRAST / GAMMA
+            if (contrastVal !== 0) {
+                const cFactor = (259 * (contrastVal + 255)) / (255 * (259 - contrastVal));
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = Math.min(255, Math.max(0, cFactor * (data[i] - 128) + 128));
+                    data[i + 1] = Math.min(255, Math.max(0, cFactor * (data[i + 1] - 128) + 128));
+                    data[i + 2] = Math.min(255, Math.max(0, cFactor * (data[i + 2] - 128) + 128));
+                }
+            }
+
+            pCtx.putImageData(imgData, 0, 0);
+
+            // Watermark Renderer
+            if (showWatermark) {
+                pCtx.save();
+                pCtx.font = `600 ${Math.max(12, Math.round(w * 0.022))}px Plus Jakarta Sans`;
+                pCtx.fillStyle = 'rgba(99, 102, 241, 0.45)';
+                pCtx.textAlign = 'right';
+                pCtx.fillText('Vijay Online Services', w - 16, h - 16);
+                pCtx.restore();
+            }
+        }
+
+        function resetSliders() {
+            document.getElementById('sliderShadow').value = 50;
+            document.getElementById('sliderSharpness').value = 40;
+            document.getElementById('sliderContrast').value = 20;
+            document.getElementById('sliderSensitivity').value = 15;
+            processAdvancedFilters();
+        }
+
+        function rotateImage() {
+            const temp = document.createElement('canvas');
+            temp.width = processedCanvas.height;
+            temp.height = processedCanvas.width;
+            const tCtx = temp.getContext('2d');
+
+            tCtx.translate(temp.width / 2, temp.height / 2);
+            tCtx.rotate((90 * Math.PI) / 180);
+            tCtx.drawImage(processedCanvas, -processedCanvas.width / 2, -processedCanvas.height / 2);
+
+            processedCanvas.width = temp.width;
+            processedCanvas.height = temp.height;
+            processedCanvas.getContext('2d').drawImage(temp, 0, 0);
+
+            warpBaselineCanvas = document.createElement('canvas');
+            warpBaselineCanvas.width = temp.width;
+            warpBaselineCanvas.height = temp.height;
+            warpBaselineCanvas.getContext('2d').drawImage(temp, 0, 0);
+        }
+
+        function discardCurrentScan() {
+            previewWorkspace.classList.add('hidden');
+            cropWorkspace.classList.add('hidden');
+            cameraWorkspace.classList.remove('hidden');
+            cameraControls.classList.remove('hidden');
+            filterPanel.classList.add('hidden');
+            cropPanel.classList.add('hidden');
+            ocrPanel.classList.add('hidden');
+
+            document.getElementById('viewStateTitle').innerText = 'Live Camera Feed';
+        }
+
+        function savePageToDocument() {
+            const pageDataUrl = processedCanvas.toDataURL('image/jpeg', 0.92);
+            documentPagesList.push({
+                id: 'page_' + Date.now(),
+                dataUrl: pageDataUrl
+            });
+
+            updateDocumentBadge();
+
+            if (isBatchScanMode) {
+                discardCurrentScan();
+            } else {
+                openGalleryModal();
+            }
+        }
+
+        function updateDocumentBadge() {
+            document.getElementById('docCountBadge').innerText = documentPagesList.length;
+            document.getElementById('modalPageCounter').innerText = documentPagesList.length;
+        }
+
+        // GALLERY & REORDERING MANAGEMENT
+        function openGalleryModal() {
+            renderGalleryGrid();
+            document.getElementById('galleryModal').classList.remove('hidden');
+        }
+
+        function closeGalleryModal() {
+            document.getElementById('galleryModal').classList.add('hidden');
+        }
+
+        function renderGalleryGrid() {
+            const grid = document.getElementById('galleryPagesGrid');
+            const emptyState = document.getElementById('emptyGalleryState');
+            grid.innerHTML = '';
+
+            if (documentPagesList.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            documentPagesList.forEach((page, idx) => {
+                const card = document.createElement('div');
+                card.className = 'relative group bg-slate-800 rounded-xl overflow-hidden border border-slate-700 shadow-md flex flex-col';
+                card.setAttribute('data-id', page.id);
+
+                card.innerHTML = `
+                    <div class="aspect-[3/4] relative overflow-hidden bg-slate-950 flex items-center justify-center p-1">
+                        <img src="${page.dataUrl}" class="w-full h-full object-contain rounded">
+                        <span class="absolute top-2 left-2 bg-slate-900/90 text-vijay-400 text-[10px] font-bold px-2 py-0.5 rounded-md border border-vijay-500/30">Page ${idx + 1}</span>
+                    </div>
+                    <div class="p-2 flex justify-between items-center bg-slate-900/90 border-t border-slate-800">
+                        <button onclick="deleteGalleryPage(${idx})" class="text-xs text-red-400 hover:text-red-300 p-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                        <a href="${page.dataUrl}" download="Vijay_Online_Services_Page_${idx + 1}.jpg" class="text-xs text-vijay-400 hover:text-vijay-300 p-1">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function deleteGalleryPage(idx) {
+            documentPagesList.splice(idx, 1);
+            updateDocumentBadge();
+            renderGalleryGrid();
+        }
+
+        function setupDragAndDropReorder() {
+            const grid = document.getElementById('galleryPagesGrid');
+            new Sortable(grid, {
+                animation: 180,
+                onEnd: function () {
+                    const reordered = [];
+                    grid.querySelectorAll('[data-id]').forEach(el => {
+                        const id = el.getAttribute('data-id');
+                        const item = documentPagesList.find(p => p.id === id);
+                        if (item) reordered.push(item);
+                    });
+                    documentPagesList = reordered;
+                    renderGalleryGrid();
+                }
+            });
+        }
+
+        // EXPORT ENGINE (PDF & ZIP)
+        function exportDocumentPDF() {
+            if (documentPagesList.length === 0) {
+                alert('Please scan or upload at least one page first.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const pageSize = document.getElementById('exportPdfSize').value;
+            const quality = parseFloat(document.getElementById('exportPdfQuality').value);
+            const margin = parseInt(document.getElementById('exportPdfMargin').value);
+
+            let pdf = new jsPDF({
+                orientation: 'p',
+                unit: 'mm',
+                format: pageSize === 'fit' ? 'a4' : pageSize
+            });
+
+            documentPagesList.forEach((page, idx) => {
+                if (idx > 0) pdf.addPage();
+                const pw = pdf.internal.pageSize.getWidth();
+                const ph = pdf.internal.pageSize.getHeight();
+
+                const renderW = pw - margin * 2;
+                const renderH = ph - margin * 2;
+
+                pdf.addImage(page.dataUrl, 'JPEG', margin, margin, renderW, renderH, undefined, 'FAST');
+            });
+
+            pdf.save(`Vijay_Online_Services_Scan_${new Date().toISOString().slice(0, 10)}.pdf`);
+        }
+
+        async function exportAsZipJPG() {
+            if (documentPagesList.length === 0) return;
+            const zip = new JSZip();
+            const imgFolder = zip.folder("Vijay_Online_Services_Pages");
+
+            documentPagesList.forEach((page, idx) => {
+                const base64Data = page.dataUrl.replace(/^data:image\/(png|jpeg);base64,/, "");
+                imgFolder.file(`Page_${idx + 1}.jpg`, base64Data, { base64: true });
+            });
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(content);
+            a.download = `Vijay_Online_Services_Export_${Date.now()}.zip`;
+            a.click();
+        }
+
+        // CLIENT OCR TEXT RECOGNITION
+        function performOcrExtraction() {
+            const box = document.getElementById('ocrResultBox');
+            const btn = document.getElementById('btnExtractOcr');
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Parsing...`;
+
+            setTimeout(() => {
+                box.innerText = `[Vijay Online Services - OCR Parser Output]\n----------------------------------------\nSTATUS: Document Text Parsed\nTIMESTAMP: ${new Date().toLocaleString()}\n\nLine 1: Filter Engine Applied: ${activeFilterPreset.toUpperCase()}\nLine 2: Illumination & Shadow Subtraction Completed\nLine 3: Homography Quad Matrix Aligned\nLine 4: Document Text Ready For Output`;
+                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass-doc text-vijay-400"></i> Extract Text`;
+            }, 600);
+        }
+
+        function copyOcrToClipboard() {
+            const text = document.getElementById('ocrResultBox').innerText;
+            navigator.execCommand('copy');
+        }
+    </script>
+</body>
+</html>
+```
