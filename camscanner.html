@@ -1,9 +1,8 @@
-```html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vijay Online Services - Advanced Document Scanner</title>
 
     <!-- Tailwind CSS -->
@@ -33,11 +32,6 @@
                             800: '#3730a3',
                             900: '#312e81',
                             950: '#1e1b4b'
-                        },
-                        cam: {
-                            400: '#00e676',
-                            500: '#00c853',
-                            600: '#00a843'
                         }
                     }
                 }
@@ -48,9 +42,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
             background-color: #090d16;
         }
 
@@ -108,13 +99,13 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+<body class="text-slate-100 min-h-screen flex flex-col overflow-hidden">
 
     <!-- Flash Overlay element for capture feedback -->
     <div id="flashOverlay" class="fixed inset-0 bg-white pointer-events-none z-50 opacity-0"></div>
 
     <!-- Header / Navigation Bar -->
-    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 py-3 flex items-center justify-between shrink-0">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-vijay-600 to-vijay-400 flex items-center justify-center shadow-lg shadow-vijay-500/25">
                 <i class="fa-solid fa-print text-white text-lg"></i>
@@ -146,13 +137,16 @@
     <main class="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 overflow-hidden relative">
 
         <!-- Central Display Area: Video / Perspective Canvas / Processed Canvas -->
-        <div class="flex-1 flex flex-col items-center justify-center relative bg-slate-950/80 rounded-2xl border border-slate-800/80 overflow-hidden shadow-2xl min-h-[480px]">
+        <div id="dropZone" class="flex-1 flex flex-col items-center justify-center relative bg-slate-950/80 rounded-2xl border border-slate-800/80 overflow-hidden shadow-2xl min-h-[400px] lg:min-h-0">
 
             <!-- Mode Indicator Badge Header -->
             <div id="viewModeHeader" class="absolute top-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
                 <div class="px-3 py-1 rounded-full glass-panel text-[11px] font-medium text-slate-300 flex items-center gap-1.5 pointer-events-auto">
                     <span id="viewStateDot" class="w-2 h-2 rounded-full bg-vijay-400 animate-pulse"></span>
                     <span id="viewStateTitle">Live Camera Feed</span>
+                </div>
+                <div class="hidden lg:block text-[11px] text-slate-400 glass-panel px-3 py-1 rounded-full pointer-events-auto">
+                    Drag & Drop image anywhere to load
                 </div>
             </div>
 
@@ -178,10 +172,10 @@
                     <button id="torchBtn" onclick="toggleTorch()" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow hidden">
                         <i class="fa-solid fa-bolt"></i>
                     </button>
-                    <button onclick="switchCamera()" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow">
+                    <button onclick="switchCamera()" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow" title="Switch Camera">
                         <i class="fa-solid fa-rotate"></i>
                     </button>
-                    <button onclick="toggleGridLines()" id="gridBtn" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow">
+                    <button onclick="toggleGridLines()" id="gridBtn" class="p-2.5 rounded-full bg-slate-950/80 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur shadow" title="Toggle Grid">
                         <i class="fa-solid fa-border-all"></i>
                     </button>
                 </div>
@@ -189,8 +183,8 @@
 
             <!-- 2. PERSPECTIVE CROP & QUAD CORNER WORKSPACE -->
             <div id="cropWorkspace" class="absolute inset-0 flex items-center justify-center bg-slate-950 hidden z-10 p-2 sm:p-4">
-                <div id="cropCanvasContainer" class="relative max-w-full max-h-full flex items-center justify-center">
-                    <canvas id="cropCanvas" class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain cursor-crosshair border border-slate-800"></canvas>
+                <div id="cropCanvasContainer" class="relative w-full h-full flex items-center justify-center overflow-hidden">
+                    <canvas id="cropCanvas" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain cursor-crosshair border border-slate-800"></canvas>
                     
                     <!-- High-Precision Magnifying Loupe Lens -->
                     <canvas id="loupeCanvas" class="absolute top-4 left-4 w-32 h-32 rounded-full border-2 border-vijay-400 shadow-2xl pointer-events-none hidden bg-black z-30"></canvas>
@@ -199,18 +193,18 @@
 
             <!-- 3. ADVANCED FILTER LAB WORKSPACE -->
             <div id="previewWorkspace" class="absolute inset-0 flex items-center justify-center bg-slate-950 hidden z-10 p-2 sm:p-4">
-                <canvas id="processedCanvas" class="max-w-full max-h-[72vh] rounded-lg shadow-2xl object-contain border border-slate-800/80"></canvas>
+                <canvas id="processedCanvas" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain border border-slate-800/80"></canvas>
             </div>
 
             <!-- Bottom Camera Trigger Overlay -->
             <div id="cameraControls" class="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-6 z-20">
-                <label class="p-3.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 backdrop-blur cursor-pointer transition shadow-lg">
+                <label class="p-3.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 backdrop-blur cursor-pointer transition shadow-lg" title="Upload File">
                     <i class="fa-solid fa-file-arrow-up text-lg"></i>
                     <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
                 </label>
 
                 <!-- Shutter Trigger Button -->
-                <button onclick="triggerCapture()" class="w-16 h-16 rounded-full bg-slate-950 p-1 border-2 border-vijay-400 shadow-xl shadow-vijay-500/20 hover:scale-105 active:scale-95 transition flex items-center justify-center group">
+                <button onclick="triggerCapture()" class="w-16 h-16 rounded-full bg-slate-950 p-1 border-2 border-vijay-400 shadow-xl shadow-vijay-500/20 hover:scale-105 active:scale-95 transition flex items-center justify-center group" title="Capture (Spacebar)">
                     <div class="w-full h-full rounded-full bg-gradient-to-tr from-vijay-600 to-vijay-400 group-hover:from-vijay-500 group-hover:to-vijay-300 transition"></div>
                 </button>
 
@@ -221,7 +215,7 @@
         </div>
 
         <!-- Sidebar Controls & Filter Lab Panel -->
-        <div id="sidebarControls" class="w-full lg:w-88 flex flex-col gap-3">
+        <div id="sidebarControls" class="w-full lg:w-96 flex flex-col gap-3 shrink-0 overflow-y-auto">
 
             <!-- CROP PANEL -->
             <div id="cropPanel" class="glass-panel p-4 rounded-2xl hidden flex-col gap-3 border border-slate-800">
@@ -250,10 +244,10 @@
             </div>
 
             <!-- ADVANCED FILTER LAB PANEL -->
-            <div id="filterPanel" class="glass-panel p-4 rounded-2xl hidden flex-col gap-4 border border-slate-800 max-h-[78vh] overflow-y-auto">
+            <div id="filterPanel" class="glass-panel p-4 rounded-2xl hidden flex-col gap-4 border border-slate-800">
                 <div class="flex items-center justify-between">
                     <h2 class="font-bold text-xs sm:text-sm text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-vijay-400"></i> Vijay Processing Filters
+                        <i class="fa-solid fa-sliders text-vijay-400"></i> Processing Filters
                     </h2>
                     <button onclick="rotateImage()" class="text-xs text-slate-300 hover:text-white flex items-center bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
                         <i class="fa-solid fa-rotate-right mr-1 text-vijay-400"></i> Rotate 90°
@@ -263,7 +257,7 @@
                 <!-- ALGORITHM PRESETS -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <button onclick="selectFilter('magic2')" id="btnFilter_magic2" class="filter-preset-btn p-2.5 rounded-xl bg-vijay-600 text-white text-xs font-bold border border-vijay-400 flex flex-col items-center gap-1 transition">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Magic Color 2.0
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Magic Color
                     </button>
                     <button onclick="selectFilter('sauvola')" id="btnFilter_sauvola" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
                         <i class="fa-solid fa-file-contract text-vijay-400"></i> Sauvola B&W
@@ -275,7 +269,7 @@
                         <i class="fa-solid fa-sun-plant-wilt text-vijay-400"></i> Shadow Off
                     </button>
                     <button onclick="selectFilter('grayscale')" id="btnFilter_grayscale" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
-                        <i class="fa-solid fa-[#000000] fa-circle-half-stroke text-vijay-400"></i> Grayscale
+                        <i class="fa-solid fa-circle-half-stroke text-vijay-400"></i> Grayscale
                     </button>
                     <button onclick="selectFilter('original')" id="btnFilter_original" class="filter-preset-btn p-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex flex-col items-center gap-1 transition hover:text-white">
                         <i class="fa-solid fa-image text-vijay-400"></i> Original RAW
@@ -358,7 +352,7 @@
                     <button onclick="performOcrExtraction()" id="btnExtractOcr" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700 flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-magnifying-glass-doc text-vijay-400"></i> Extract Text
                     </button>
-                    <button onclick="copyOcrToClipboard()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">
+                    <button onclick="copyOcrToClipboard()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700" title="Copy Text">
                         <i class="fa-solid fa-copy"></i>
                     </button>
                 </div>
@@ -443,12 +437,12 @@
         let activeMediaStream = null;
         let selectedCameraDeviceId = null;
         let isTorchEnabled = false;
-        let documentPagesList = []; // Array of page objects { id, dataUrl }
+        let documentPagesList = []; 
         
         // Canvas State
         let rawImageElement = null;
         let warpBaselineCanvas = null;
-        let cropCornerPoints = []; // Four points [{x,y}, ...]
+        let cropCornerPoints = []; 
         let draggedCornerIdx = -1;
         let activeFilterPreset = 'magic2';
         let filterReprocessTimer = null;
@@ -471,7 +465,33 @@
             setupCropCanvasInteraction();
             setupDragAndDropReorder();
             setupKeyboardShortcuts();
+            setupDesktopDragAndDrop();
         });
+
+        // DESKTOP FILE DRAG & DROP SUPPORT
+        function setupDesktopDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files && files[0] && files[0].type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (evt) => loadCapturedImageData(evt.target.result);
+                    reader.readAsDataURL(files[0]);
+                }
+            });
+        }
 
         // KEYBOARD SHORTCUTS
         function setupKeyboardShortcuts() {
@@ -534,7 +554,7 @@
                     document.getElementById('torchBtn').classList.add('hidden');
                 }
             } catch (err) {
-                console.warn("Camera stream warning:", err);
+                console.warn("Camera stream warning / unavailable:", err);
             }
         }
 
@@ -624,6 +644,7 @@
 
         // CORNER DETECTION & CROP SYSTEM
         function autoDetectCorners() {
+            if (!rawImageElement) return;
             const w = rawImageElement.width;
             const h = rawImageElement.height;
             const padX = w * 0.06;
@@ -639,6 +660,7 @@
         }
 
         function resetCropPoints() {
+            if (!rawImageElement) return;
             const w = rawImageElement.width;
             const h = rawImageElement.height;
             cropCornerPoints = [
@@ -746,7 +768,7 @@
 
             const startDrag = (e) => {
                 const pos = getCanvasCoords(e);
-                const hitRadius = Math.max(45, cropCanvas.width * 0.05);
+                const hitRadius = Math.max(50, cropCanvas.width * 0.06);
                 draggedCornerIdx = cropCornerPoints.findIndex(pt => Math.hypot(pt.x - pos.x, pt.y - pos.y) < hitRadius);
                 if (draggedCornerIdx !== -1) {
                     updateLoupeLens(pos);
@@ -771,11 +793,11 @@
             };
 
             cropCanvas.addEventListener('mousedown', startDrag);
-            cropCanvas.addEventListener('mousemove', moveDrag);
+            window.addEventListener('mousemove', moveDrag);
             window.addEventListener('mouseup', stopDrag);
 
             cropCanvas.addEventListener('touchstart', startDrag, { passive: false });
-            cropCanvas.addEventListener('touchmove', moveDrag, { passive: false });
+            window.addEventListener('touchmove', moveDrag, { passive: false });
             window.addEventListener('touchend', stopDrag);
         }
 
@@ -860,7 +882,7 @@
 
         function triggerFilterReprocess() {
             clearTimeout(filterReprocessTimer);
-            filterReprocessTimer = setTimeout(processAdvancedFilters, 60);
+            filterReprocessTimer = setTimeout(processAdvancedFilters, 40);
         }
 
         function processAdvancedFilters() {
@@ -1074,10 +1096,10 @@
                         <span class="absolute top-2 left-2 bg-slate-900/90 text-vijay-400 text-[10px] font-bold px-2 py-0.5 rounded-md border border-vijay-500/30">Page ${idx + 1}</span>
                     </div>
                     <div class="p-2 flex justify-between items-center bg-slate-900/90 border-t border-slate-800">
-                        <button onclick="deleteGalleryPage(${idx})" class="text-xs text-red-400 hover:text-red-300 p-1">
+                        <button onclick="deleteGalleryPage(${idx})" class="text-xs text-red-400 hover:text-red-300 p-1" title="Delete Page">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
-                        <a href="${page.dataUrl}" download="Vijay_Online_Services_Page_${idx + 1}.jpg" class="text-xs text-vijay-400 hover:text-vijay-300 p-1">
+                        <a href="${page.dataUrl}" download="Vijay_Online_Services_Page_${idx + 1}.jpg" class="text-xs text-vijay-400 hover:text-vijay-300 p-1" title="Download JPG">
                             <i class="fa-solid fa-download"></i>
                         </a>
                     </div>
@@ -1173,9 +1195,19 @@
 
         function copyOcrToClipboard() {
             const text = document.getElementById('ocrResultBox').innerText;
-            navigator.execCommand('copy');
+            navigator.clipboard.writeText(text).then(() => {
+                alert('OCR Text copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('OCR Text copied to clipboard!');
+            });
         }
     </script>
 </body>
 </html>
-```
