@@ -250,9 +250,12 @@
             <div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-pink-500/10 group-hover:bg-blue-100 dark:group-hover:bg-pink-500/20 text-blue-600 dark:text-pink-400 flex items-center justify-center text-xl mb-2 transition-transform group-hover:scale-110">
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
-            <span class="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-pink-300 transition-colors">Click or Drag Image Here</span>
+            <span id="uploadLabelText" class="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-pink-300 transition-colors">Click or Drag Image Here</span>
             <span class="text-xs text-slate-500 dark:text-slate-400 mt-1">Supports JPG, PNG, WEBP files</span>
           </label>
+          <button id="removeImageBtn" type="button" class="hidden absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-sm shadow-md hover:bg-red-600 active:scale-95 transition-all z-10" title="Remove photo">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         </div>
       </div>
 
@@ -327,11 +330,15 @@
         </div>
       </div>
 
-      <!-- Step 3: Download Button -->
-      <div class="mt-6 w-full flex justify-center">
+      <!-- Step 3: Action Buttons (Download & Refresh) -->
+      <div class="mt-6 w-full flex flex-col sm:flex-row items-center justify-center gap-3">
         <button id="downloadBtn" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 text-white dark:text-slate-950 font-extrabold text-base tracking-wide flex items-center justify-center gap-3 shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 glow-pulse cursor-pointer">
           <i class="fa-solid fa-download text-xl"></i>
           <span>Download Processed Image</span>
+        </button>
+        <button id="refreshBtn" type="button" class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-base tracking-wide flex items-center justify-center gap-2 hover:bg-slate-300 dark:hover:bg-slate-700 active:scale-95 transition-all cursor-pointer">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reset / Clear</span>
         </button>
       </div>
 
@@ -454,6 +461,9 @@
     const rotateRightStepBtn = document.getElementById('rotateRightStepBtn');
 
     const downloadBtn = document.getElementById('downloadBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const uploadLabelText = document.getElementById('uploadLabelText');
 
     const specPortalName = document.getElementById('specPortalName');
     const specTitle = document.getElementById('specTitle');
@@ -503,6 +513,26 @@
       if (imgLoaded) draw();
     }
 
+    // Clear and Reset Image
+    function clearImage() {
+      img = new Image();
+      imgLoaded = false;
+      fileInput.value = '';
+      uploadLabelText.textContent = 'Click or Drag Image Here';
+      removeImageBtn.classList.add('hidden');
+      editorArea.classList.add('hidden');
+      editorArea.classList.remove('flex');
+    }
+
+    removeImageBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearImage();
+    });
+
+    refreshBtn.addEventListener('click', () => {
+      clearImage();
+    });
+
     // File Input Upload Event
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -513,6 +543,8 @@
         img = new Image();
         img.onload = () => {
           imgLoaded = true;
+          uploadLabelText.textContent = file.name;
+          removeImageBtn.classList.remove('hidden');
           editorArea.classList.remove('hidden');
           editorArea.classList.add('flex');
           updateSpecPill();
