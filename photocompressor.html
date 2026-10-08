@@ -192,6 +192,8 @@
                 <option value="tnega_photo" selected>TNeGA Photo (240 x 240 px, &lt; 50 KB)</option>
                 <option value="tnpsc_photo">TNPSC Photo (200 x 250 px, &lt; 50 KB)</option>
                 <option value="tnpsc_sig">TNPSC Signature (Max 450 x 200 px, &lt; 20 KB)</option>
+                <option value="tnega_scholarship_photo">TN e-District Scholarship Photo (200 x 230 px, &lt; 100 KB)</option>
+                <option value="tnega_scholarship_sig">TN e-District Scholarship Signature (140 x 60 px, &lt; 50 KB)</option>
               </optgroup>
 
               <optgroup label="💳 PAN Card Services" class="bg-white dark:bg-slate-900 text-amber-800 dark:text-amber-300 font-bold">
@@ -202,9 +204,13 @@
               </optgroup>
 
               <optgroup label="🇮🇳 All-India Recruitment & Exams" class="bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 font-bold">
+                <option value="banking_photo">Banking / SBI / IBPS Photo (200 x 230 px, &lt; 50 KB)</option>
+                <option value="banking_sig">Banking / SBI / IBPS Signature (140 x 60 px, &lt; 20 KB)</option>
                 <option value="ssc_sig">SSC Signature (140 x 60 px, &lt; 20 KB)</option>
                 <option value="upsc_photo">UPSC Photo (350 x 350 px, &lt; 300 KB)</option>
                 <option value="upsc_sig">UPSC Signature (350 x 350 px, &lt; 300 KB)</option>
+                <option value="nta_photo">NTA NEET/JEE Photo (350 x 450 px, &lt; 200 KB)</option>
+                <option value="nta_sig">NTA NEET/JEE Signature (140 x 60 px, &lt; 30 KB)</option>
               </optgroup>
 
             </select>
@@ -364,7 +370,14 @@
         width: 450, height: 200, maxKb: 20, filename: "TNPSC_Signature.jpg", 
         title: "TNPSC Signature", portal: "TNPSC OTR Portal" 
       },
-
+      tnega_scholarship_photo: { 
+        width: 200, height: 230, maxKb: 100, filename: "TN_Scholarship_Photo.jpg", 
+        title: "TN Scholarship Photo", portal: "TN e-District Portal" 
+      },
+      tnega_scholarship_sig: { 
+        width: 140, height: 60, maxKb: 50, filename: "TN_Scholarship_Sig.jpg", 
+        title: "TN Scholarship Signature", portal: "TN e-District Portal" 
+      },
       utiitsl_photo: { 
         width: 213, height: 213, maxKb: 30, filename: "UTIITSL_PAN_Photo.jpg", 
         title: "UTIITSL PAN Photo (300 DPI)", portal: "UTIITSL PAN Online" 
@@ -381,8 +394,15 @@
         width: 80, height: 170, maxKb: 50, filename: "NSDL_PAN_Sig.jpg", 
         title: "Protean / NSDL Signature", portal: "Protean NSDL Portal" 
       },
-
-
+      banking_photo: { 
+        width: 200, height: 230, maxKb: 50, filename: "Banking_Photo.jpg", 
+        title: "SBI / IBPS Bank Photo", portal: "Banking Recruitment" 
+      },
+      banking_sig: { 
+        width: 140, height: 60, maxKb: 20, filename: "Banking_Signature.jpg", 
+        title: "SBI / IBPS Bank Signature", portal: "Banking Recruitment" 
+      },
+      ssc_sig: { 
         width: 140, height: 60, maxKb: 20, filename: "SSC_Signature.jpg", 
         title: "SSC Signature", portal: "Staff Selection Commission" 
       },
@@ -394,7 +414,14 @@
         width: 350, height: 350, maxKb: 300, filename: "UPSC_Signature.jpg", 
         title: "UPSC Signature", portal: "UPSC OTR Portal" 
       },
-
+      nta_photo: { 
+        width: 350, height: 450, maxKb: 200, filename: "NTA_NEET_JEE_Photo.jpg", 
+        title: "NTA NEET / JEE Photo", portal: "National Testing Agency" 
+      },
+      nta_sig: { 
+        width: 140, height: 60, maxKb: 30, filename: "NTA_NEET_JEE_Sig.jpg", 
+        title: "NTA NEET / JEE Signature", portal: "National Testing Agency" 
+      }
     };
 
     // Application State Variables
